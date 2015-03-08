@@ -1,0 +1,10 @@
+freebsd.patch
+tcltk.patch
+linkage.patch
+fix-section-tcl-manpages.patch
+for-upstream_manpage-typos.patch
+for-upstream_manpage-name-section.patch
+deb-specific_python-install.patch
+deb_specific__owfs-use-config.patch
+for-upstream_fix-ABI.patch
+for-upstream_owexist-manpage.patch

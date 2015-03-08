@@ -1,0 +1,2 @@
+Contrary to quilt, dpkg-source does not handle correctly various EOL :-(
+So, we store the whole diff here

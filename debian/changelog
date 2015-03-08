@@ -1,6 +1,227 @@
-1wire (2.6p4+cvs20070515-1) unstable; urgency=low
+owfs (2.9p8-6) unstable; urgency=medium
 
-  * Initial release (Closes: #325159)
+  * Hide ls error messages when nothing have to do done on
+    upgrade (Closes: #769523)
 
- -- Matthias Urlichs <smurf@smurf.noris.de>  Tue, 15 May 2007 11:59:13 +0200
+ -- Vincent Danjean <vdanjean@debian.org>  Fri, 14 Nov 2014 18:54:21 +0100
 
+owfs (2.9p8-5) unstable; urgency=medium
+
+  * Add missing Breaks/Replaces required due to some files moved
+    from the ow-shell package to the ow-tools one. This move occures
+    in 2.9p5-1 (Closes: #768115)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sat, 08 Nov 2014 23:09:09 +0100
+
+owfs (2.9p8-4) unstable; urgency=medium
+
+  * Fix "FTBFS[kfreebsd]: wrong ifdef __FreeBSD__" : using the good
+    symbol, thanks Steven Chamberlain (Closes: #766910)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Mon, 27 Oct 2014 08:18:46 +0100
+
+owfs (2.9p8-3) unstable; urgency=medium
+
+  * Trying to fix another incompatibility with FreeBSD with this
+    new upstream version
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sun, 26 Oct 2014 16:31:25 +0100
+
+owfs (2.9p8-2) unstable; urgency=medium
+
+  * make systemd dependency linux-any only (Closes: #766697)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sat, 25 Oct 2014 10:36:53 +0200
+
+owfs (2.9p8-1) unstable; urgency=medium
+
+  * New upstream release
+    + fix a nasty bug in owfs (filesystem)
+    + will require a new round in NEW queue (sorry FTP Masters)
+      as upstream uses a new soname for each release
+      (by chance, there is no reverse dependencies in Debian, so
+      no bin-NMU are required)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sun, 19 Oct 2014 13:56:13 +0200
+
+owfs (2.9p7-2) unstable; urgency=medium
+
+  * remove README.source template
+  * fix perl source file licenses in copyright and reorganize it
+    (Closes: #765665)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Fri, 17 Oct 2014 15:08:15 +0200
+
+owfs (2.9p7-1) unstable; urgency=medium
+
+  * New (minor) upstream release
+    + fix version parsing in python and perl modules (Closes: #765371)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Tue, 14 Oct 2014 18:57:13 +0200
+
+owfs (2.9p5-1.1) unstable; urgency=high
+
+  * Non-maintainer upload with maintainer's permission
+
+  * make DS1410_detect@Base symbol available only on Linux architectures.
+    Fixes FTBFS on kfreebsd-*/hurd (Closes: #757571)
+
+  * High urgency to help the perl 5.20 transition
+
+ -- Damyan Ivanov <dmn@debian.org>  Tue, 19 Aug 2014 08:30:50 +0000
+
+owfs (2.9p5-1) unstable; urgency=medium
+
+  * New upstream release
+  * Fix "hardcodes /usr/lib/perl5":
+    make debian/libow-perl.install executable and use $Config{vendorarch}
+    there (Closes: #752804)
+    Thanks Gregor Herrmann <gregoa@debian.org> for the patch
+
+ -- Vincent Danjean <vdanjean@debian.org>  Mon, 07 Jul 2014 13:27:43 +0200
+
+owfs (2.9p1-2) unstable; urgency=medium
+
+  * move TclTk scripts to an arch-indep package (Closes: #737400)
+  * upload to unstable
+  * Bump Standard-Version (no change needed)
+  * Fix URLs in debian/control
+  * add a Suggests on avahi-daemon in ow-server and document the --nozero
+    option (closes: #646764)
+  * recommands fuse instead of fuse-utils (Closes: #698180)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sun, 02 Feb 2014 22:07:24 +0100
+
+owfs (2.9p1-1) experimental; urgency=low
+
+  * Imported Upstream version 2.9p1
+  * Cleanup patches and symbol files
+
+ -- Vincent Danjean <vdanjean@debian.org>  Wed, 26 Jun 2013 23:52:10 +0200
+
+owfs (2.9p0-1) experimental; urgency=low
+
+  * Imported Upstream version 2.9p0
+  * Update to new release 2.9-0
+  * backport python fix in ownet
+
+ -- Vincent Danjean <vdanjean@debian.org>  Tue, 02 Apr 2013 21:19:59 +0200
+
+owfs (2.8p17-1) experimental; urgency=low
+
+  * New upstream release
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sun, 09 Sep 2012 22:04:33 +0200
+
+owfs (2.8p16-1) unstable; urgency=low
+
+  * New upstream release
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sun, 08 Jul 2012 00:03:04 +0200
+
+owfs (2.8p15-1) unstable; urgency=low
+
+  * New upstream release (thank Iztok Jeras for the notice)
+    + refresh debian/patches/*
+    + remove debian/patches/for-upstream_w1protection.patch (applied upstream)
+  * switch to dh 9 (and multiarch for library packages)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sun, 03 Jun 2012 23:03:41 +0200
+
+owfs (2.8p14-4) unstable; urgency=medium
+
+  * Closes: #662634: using patch provided by Ondřej Surý to get a correct
+    dependency on phpapi (was broken with PHP 5.4)
+  * Urgency set to medium due to this fix
+  * Standards-Version dumped from 3.9.2 to 3.9.3 (no change needed)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Mon, 05 Mar 2012 16:15:45 +0100
+
+owfs (2.8p14-3) unstable; urgency=low
+
+  * Still adapting symbol list to kfreebsd
+
+ -- Vincent Danjean <vdanjean@debian.org>  Tue, 28 Feb 2012 00:25:28 +0100
+
+owfs (2.8p14-2) unstable; urgency=low
+
+  * Fix "FTBFS(kfreebsd): libow.so: undefined reference to `w1_bind'"
+    protected with #ifdef OW_W1 (Closes: #660857)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Fri, 24 Feb 2012 22:48:38 +0100
+
+owfs (2.8p14-1) unstable; urgency=low
+
+  * New upstream release
+  * No need to repackage the sources anymore: libdns_sd.dll is gone
+
+ -- Vincent Danjean <vdanjean@debian.org>  Wed, 15 Feb 2012 00:33:18 +0100
+
+owfs (2.8p13+dfsg1-5) unstable; urgency=low
+
+  * also disable owtraffic at configure time
+
+ -- Vincent Danjean <vdanjean@debian.org>  Thu, 20 Oct 2011 21:50:58 +0200
+
+owfs (2.8p13+dfsg1-4) unstable; urgency=low
+
+  * disable malloc debug at configure time
+
+ -- Vincent Danjean <vdanjean@debian.org>  Thu, 20 Oct 2011 07:51:19 +0200
+
+owfs (2.8p13+dfsg1-3) unstable; urgency=low
+
+  * Fix python extension linkage
+  * Fix wrong debian/*.install files so that a same file is not added is
+    different packages (Closes: #640915)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Thu, 08 Sep 2011 23:18:22 +0200
+
+owfs (2.8p13+dfsg1-2) unstable; urgency=low
+
+  * Fix "FTBFS(kfreebsd): symbol diff" (Closes: #640385)
+    non-linux architectures do not have w1 support
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sun, 04 Sep 2011 20:59:13 +0200
+
+owfs (2.8p13+dfsg1-1) unstable; urgency=low
+
+  * remove src/scripts/windows/libdns_sd.dll from the tarball. This
+    windows DLL is mDNSResponder-107.6 precompiled with a patch
+    applied. But mDNSResponder-107.6 sources are not included in this package
+    and the patch in available in upstream CVS (but not the released tarball).
+    Upstream will probably remove this file in the next release.
+
+ -- Vincent Danjean <vdanjean@debian.org>  Fri, 02 Sep 2011 21:08:19 +0200
+
+owfs (2.8p13-2) unstable; urgency=low
+
+  * Rebuild in clean environment
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sun, 28 Aug 2011 18:03:32 +0200
+
+owfs (2.8p13-1) unstable; urgency=low
+
+  * New upstream release
+  * Upload to Debian repo (Closes: #606189)
+
+ -- Vincent Danjean <vdanjean@debian.org>  Mon, 22 Aug 2011 14:01:10 +0200
+
+owfs (2.8p8-1) unstable; urgency=low
+
+  * New upstream release
+  * Cleanup init scripts, add doc about Debian setup
+
+ -- Vincent Danjean <vdanjean@debian.org>  Tue, 05 Apr 2011 16:35:15 +0200
+
+owfs (2.8p7+cvs20110310-1) unstable; urgency=low
+
+  * Snapshot taken from CVS
+
+ -- Vincent Danjean <vdanjean@debian.org>  Thu, 10 Mar 2011 22:44:26 +0100
+
+owfs (2.8p7-1) unstable; urgency=low
+
+  * Initial release
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sun, 21 Nov 2010 23:04:19 +0100

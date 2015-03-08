@@ -1,11 +1,16 @@
-$ID:$
-1wire / owfs for Debian
------------------------
+owfs for Debian
+---------------
 
-I decided to name the package "1wire" instead of Upstream's "owfs"
-because, frankly, that's what it does -- drive 1wire buses.
+owfs does not mix well with in-kernel 1-wire driver. So these modules
+are currently blacklisted by this package. For more information, see
+http://owfs.org/index.php?page=w1-project
 
-owfs aka one wire file system is just a small part of this; in fact,
-most "real" applications will not use the file system at all: it's SLOW.
+With the default setup on Debian, all ow* programs (but owserver) try to get
+their data from a local owserver. Owserver is the only program talking to the
+1-wire hardware (fake hardware by default). All of this can be changed by
+editing /etc/owfs.conf.
 
- -- Matthias Urlichs <smurf@debian.org>  Tue, 15 May 2007 11:59:13 +0200
+If avahi-daemon does not run, owserver must be started with the --nozero
+option.
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sun, 21 Nov 2010 23:04:19 +0100

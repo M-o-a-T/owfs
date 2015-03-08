@@ -1,0 +1,8 @@
+owfs (2.9p5-1) unstable; urgency=medium
+
+  owmon and owtap, two tcl-tk tools, moved from the ow-shell package to
+  the new ow-tool package. They should be used mainly for debug, so
+  there is no automatic transition. Please, install the new ow-tool
+  package if you need these tools. 
+
+ -- Vincent Danjean <vdanjean@debian.org>  Sun, 03 Aug 2014 22:10:19 +0200

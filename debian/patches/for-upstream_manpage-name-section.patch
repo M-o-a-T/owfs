@@ -1,0 +1,848 @@
+The NAME section MUST be a list of identifiers followed by \- followed by a
+short description. 
+--- a/src/man/man3/DS1821.man
++++ b/src/man/man3/DS1821.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS1821 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS1821
+-Programmable Digital Thermostat and Thermometer
++\- Programmable Digital Thermostat and Thermometer
+ .SH SYNOPSIS
+ Thermostat.
+ .PP
+--- a/src/man/man3/DS1822.man
++++ b/src/man/man3/DS1822.man
+@@ -11,7 +11,7 @@
+ .TH DS1822 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+ .B DS1822
+-Econo 1-Wire Digital Thermometer
++\- Econo 1-Wire Digital Thermometer
+ .SH SYNOPSIS
+ Thermometer.
+ .PP
+--- a/src/man/man3/DS1825.man
++++ b/src/man/man3/DS1825.man
+@@ -10,15 +10,12 @@
+ '\"
+ .TH DS1825 3  2006 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+-.B DS1825
+-Programmable Resolution 1-Wire Digital Thermometer with ID
+-.TP
+-.B MAX31826
++.B DS1825, MAX31826
++\- Programmable Resolution 1-Wire Digital Thermometer with ID,
+ Digital Temperature Sensor with 1Kb Lockable EEPROM
+ .TP
+ .B MAX31850 MAX31851
+-Cold-Junction Compensated Thermocouple
++\- Cold-Junction Compensated Thermocouple
+ .SH SYNOPSIS
+ .SS Thermometer with hardware address pins (DS1825)
+ .PP
+--- a/src/man/man3/DS18B20.man
++++ b/src/man/man3/DS18B20.man
+@@ -10,12 +10,11 @@
+ '\"
+ .TH DS18B20 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS18B20
+-Programmable Resolution 1-Wire Digital Thermometer
++\- Programmable Resolution 1-Wire Digital Thermometer
+ .TP
+ .B MAX31820
+-Ambient Temperature Sensor
++\- Ambient Temperature Sensor
+ .SH SYNOPSIS
+ Thermometer.
+ .PP
+--- a/src/man/man3/DS18S20.man
++++ b/src/man/man3/DS18S20.man
+@@ -10,11 +10,8 @@
+ '\"
+ .TH DS18S20 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+-.B DS18S20
+-High-Precision 1-Wire Digital Thermometer
+-.TP
+-.B DS1920
++.B DS18S20, DS1920
++\- High-Precision 1-Wire Digital Thermometer,
+ iButton version of the thermometer
+ .SH SYNOPSIS
+ Thermometer.
+--- a/src/man/man3/DS1921.man
++++ b/src/man/man3/DS1921.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS1921-Thermochron 3  2005 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS1921
+-Thermochron temperature logging iButton.
++\- Thermochron temperature logging iButton.
+ .SH SYNOPSIS
+ Temperature logging iButton.
+ .PP
+--- a/src/man/man3/DS1963L.man
++++ b/src/man/man3/DS1963L.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS1963L 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS1963L
+-256 byte Monetary iButton
++\- 256 byte Monetary iButton
+ .SH SYNOPSIS
+ Non-volatile R/W memory with counters
+ .PP
+--- a/src/man/man3/DS1963S.man
++++ b/src/man/man3/DS1963S.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS1963S 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS1963S
+-256 byte Monetary iButton with SHA-1
++\- 256 byte Monetary iButton with SHA-1
+ .SH SYNOPSIS
+ Non-volatile R/W memory with counters, SHA-1 (under NDA)
+ .PP
+--- a/src/man/man3/DS1977.man
++++ b/src/man/man3/DS1977.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS1977 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS1977
+-Password Protected 32kbit Memory iButton
++\- Password Protected 32kbit Memory iButton
+ .SH SYNOPSIS
+ Non-volatile memory.
+ .PP
+--- a/src/man/man3/DS1991.man
++++ b/src/man/man3/DS1991.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS1991 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS1991
+-1152bit MultiKey iButton
++\- 1152bit MultiKey iButton
+ .SH SYNOPSIS
+ Non-volatile memory with password protection.
+ .PP
+--- a/src/man/man3/DS1992.man
++++ b/src/man/man3/DS1992.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS1992 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS1992
+-1kbit Memory iButton
++\- 1kbit Memory iButton
+ .SH SYNOPSIS
+ Non-volatile memory.
+ .PP
+--- a/src/man/man3/DS1993.man
++++ b/src/man/man3/DS1993.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS1993 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS1993
+-4kbit Memory iButton
++\- 4kbit Memory iButton
+ .SH SYNOPSIS
+ Non-volatile memory.
+ .PP
+--- a/src/man/man3/DS1995.man
++++ b/src/man/man3/DS1995.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS1995 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS1995
+-16kbit Memory iButton
++\- 16kbit Memory iButton
+ .SH SYNOPSIS
+ Non-volatile memory.
+ .PP
+--- a/src/man/man3/DS1996.man
++++ b/src/man/man3/DS1996.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS1996 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS1996
+-64kbit Memory iButton
++\- 64kbit Memory iButton
+ .SH SYNOPSIS
+ Non-volatile memory.
+ .PP
+--- a/src/man/man3/DS2401.man
++++ b/src/man/man3/DS2401.man
+@@ -10,19 +10,17 @@
+ '\"
+ .TH DS2401 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+-.B DS2401
+-Silicon Serial Number
+-.TP
+-.B DS1990A
++.B DS2401, DS1990A
++\-
++Silicon Serial Number,
+ Serial Number iButton
++.SH SYNOPSIS
++Unique serial number only.
+ .PP
+ .B 01
+ [.]XXXXXXXXXXXX[XX][/[
+ .so man3/standard_mini.3so
+ ]]
+-.SH SYNOPSIS
+-Unique serial number only.
+ .SH FAMILY CODE
+ .PP
+ .I 01
+--- a/src/man/man3/DS2404.man
++++ b/src/man/man3/DS2404.man
+@@ -10,17 +10,10 @@
+ '\"
+ .TH DS2404 3  2006 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+-.B DS2404
+-EconoRAM time chip
+-.TP
+-.B DS2404S
+-Dual port memory plus time
+-.TP
+-.B DS1994
+-4k plus time iButton
+-.TP
+-.B DS1427
++.B DS2404, DS2404S, DS1994, DS1427
++\- EconoRAM time chip,
++Dual port memory plus time,
++4k plus time iButton,
+ Time iButton
+ .SH SYNOPSIS
+ Real time clock, 4kbit memory. 3-wire interface, too.
+--- a/src/man/man3/DS2405.man
++++ b/src/man/man3/DS2405.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2405 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2405
+-Addressable Switch
++\- Addressable Switch
+ .SH SYNOPSIS
+ 1-wire network branch controller.
+ .PP
+--- a/src/man/man3/DS2406.man
++++ b/src/man/man3/DS2406.man
+@@ -10,11 +10,8 @@
+ '\"
+ .TH DS2406 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+-.B DS2406
+-Dual Addressable Switch with 1kbit Memory
+-.TP
+-.B DS2407
++.B DS2406, DS2407
++\- Dual Addressable Switch with 1kbit Memory,
+ Hidable Dual Addressable Switch with 1kbit Memory
+ .SH SYNOPSIS
+ Dual Switch, Write-once Memory
+--- a/src/man/man3/DS2408.man
++++ b/src/man/man3/DS2408.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2408 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2408
+-1-Wire 8 Channel Addressable Switch
++\- 1-Wire 8 Channel Addressable Switch
+ .SH SYNOPSIS
+ 8 port switch
+ .PP
+--- a/src/man/man3/DS2409.man
++++ b/src/man/man3/DS2409.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2409 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2409
+-MicroLAN Coupler
++\- MicroLAN Coupler
+ .SH SYNOPSIS
+ 1-wire network branch controller.
+ .PP
+--- a/src/man/man3/DS2413.man
++++ b/src/man/man3/DS2413.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2413 3  2005 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2413
+-Dual Channel Addressable Switch
++\- Dual Channel Addressable Switch
+ .SH SYNOPSIS
+ Dual Switch
+ .PP
+--- a/src/man/man3/DS2415.man
++++ b/src/man/man3/DS2415.man
+@@ -10,14 +10,9 @@
+ '\"
+ .TH DS2415 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+-.B DS2415
+-1-Wire Time Chip
+-.B
+-.B DS1904
+-RTC iButton
+-.TP
+-.B DS2417
++.B DS2415, DS1904, DS2417
++\- 1-Wire Time Chip,
++RTC iButton,
+ 1-Wire Time Chip with Interrupt
+ .SH SYNOPSIS
+ Real time clock.
+--- a/src/man/man3/DS2423.man
++++ b/src/man/man3/DS2423.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2423 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2423
+-4kbit 1-Wire RAM with Counter
++\- 4kbit 1-Wire RAM with Counter
+ .SH SYNOPSIS
+ RAM and counters.
+ .PP
+--- a/src/man/man3/DS2430A.man
++++ b/src/man/man3/DS2430A.man
+@@ -10,11 +10,8 @@
+ '\"
+ .TH DS2430A 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+-.B DS2430A
+-256-bit 1-wire EEPROM
+-.TP
+-.B DS1971
++.B DS2430A, DS1971
++\- 256-bit 1-wire EEPROM,
+ 256-bit EEPROM ibutton
+ .SH SYNOPSIS
+ EEPROM
+--- a/src/man/man3/DS2431.man
++++ b/src/man/man3/DS2431.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2431 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2431
+-EEPROM (1 kBit)
++\- EEPROM (1 kBit)
+ .SH SYNOPSIS
+ Erasable programmable read-only memory (EEPROM)
+ .PP
+--- a/src/man/man3/DS2433.man
++++ b/src/man/man3/DS2433.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2433 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2433
+-EEPROM (4 kBit)
++\- EEPROM (4 kBit)
+ .SH SYNOPSIS
+ Erasable programmable read-only memory (EEPROM)
+ .PP
+--- a/src/man/man3/DS2436.man
++++ b/src/man/man3/DS2436.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2436 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2436
+-Battery ID/Monitor Chip
++\- Battery ID/Monitor Chip
+ .SH SYNOPSIS
+ Temperature Voltage and Memory.
+ .PP
+--- a/src/man/man3/DS2437.man
++++ b/src/man/man3/DS2437.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2437 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2437
+-Smart Battery Monitor
++\- Smart Battery Monitor
+ .SH SYNOPSIS
+ Temperature Voltages and Memory.
+ .PP
+--- a/src/man/man3/DS2438.man
++++ b/src/man/man3/DS2438.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2438 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2438
+-Smart Battery Monitor
++\- Smart Battery Monitor
+ .SH SYNOPSIS
+ .SS Temperature Voltages and Current.
+ .PP
+--- a/src/man/man3/DS2450.man
++++ b/src/man/man3/DS2450.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2450 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2450
+-Quad A/D Converter
++\- Quad A/D Converter
+ .SH SYNOPSIS
+ .SS Voltage * 4  and Memory.
+ .PP
+--- a/src/man/man3/DS2502.man
++++ b/src/man/man3/DS2502.man
+@@ -10,20 +10,11 @@
+ '\"
+ .TH DS2502 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+-.B DS2502
+-Add-Only Memory (1 kBit)
+-.TP
+-.B DS2502-E48
+-48-bit Node Address Chip
+-.TP
+-.B DS2502-UNW
+-UniqueWare Add-Only Memory (1 kBit)
+-.TP
+-.B DS1982
+-Add-Only iButton (1 kBit)
+-.TP
+-.B DS1982U
++.B DS2502, DS2502-E48, DS2502-UNW, DS1982, DS1982U
++\- Add-Only Memory (1 kBit),
++48-bit Node Address Chip,
++UniqueWare Add-Only Memory (1 kBit),
++Add-Only iButton (1 kBit),
+ UniqueWare iButton (1 kBit)
+ .SH SYNOPSIS
+ EPROM add-only memory.
+--- a/src/man/man3/DS2505.man
++++ b/src/man/man3/DS2505.man
+@@ -11,16 +11,10 @@
+ .TH DS2505 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+ .TP
+-.B DS2505
+-Add-Only Memory (16 kBit)
+-.TP
+-.B DS2505-UNW
+-UniqueWare Add-Only Memory (16 kBit)
+-.TP
+-.B DS1985
+-Add-Only iButton (16 kBit)
+-.TP
+-.B DS1985U
++.B DS2505, DS2505-UNW, DS1985, DS1985U
++\- Add-Only Memory (16 kBit),
++UniqueWare Add-Only Memory (16 kBit),
++Add-Only iButton (16 kBit),
+ UniqueWare iButton (16 kBit)
+ .SH SYNOPSIS
+ EPROM add-only memory.
+--- a/src/man/man3/DS2506.man
++++ b/src/man/man3/DS2506.man
+@@ -10,17 +10,10 @@
+ '\"
+ .TH DS2506 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+-.B DS2506
+-Add-Only Memory (64 kBit)
+-.TP
+-.B DS2506-UNW
+-UniqueWare Add-Only Memory (64 kBit)
+-.TP
+-.B DS1986
+-Add-Only iButton (64 kBit)
+-.TP
+-.B DS1986U
++.B DS2506, DS2506-UNW, DS1986, DS1986U
++\- Add-Only Memory (64 kBit)
++UniqueWare Add-Only Memory (64 kBit),
++Add-Only iButton (64 kBit),
+ UniqueWare iButton (64 kBit)
+ .SH SYNOPSIS
+ EPROM add-only memory.
+--- a/src/man/man3/DS2720.man
++++ b/src/man/man3/DS2720.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2720 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2720
+-Efficient Addressable Single-cell Rechargeable Lithium Protection IC
++\- Efficient Addressable Single-cell Rechargeable Lithium Protection IC
+ .SH SYNOPSIS
+ Memory and warnings.
+ .PP
+--- a/src/man/man3/DS2740.man
++++ b/src/man/man3/DS2740.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2740 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2740
+-High-Precision Coulomb Counter
++\- High-Precision Coulomb Counter
+ .SH SYNOPSIS
+ Voltage and Switch
+ .PP
+--- a/src/man/man3/DS2751.man
++++ b/src/man/man3/DS2751.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2751 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2751
+-Multichemistry Battery Fuel Gauge
++\- Multichemistry Battery Fuel Gauge
+ .SH SYNOPSIS
+ .SS Temperature Voltage, Current, Memory, and Switch.
+ .PP
+--- a/src/man/man3/DS2755.man
++++ b/src/man/man3/DS2755.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2755 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2755, DS2756
+-Multichemistry Battery Fuel Gauge
++\- Multichemistry Battery Fuel Gauge
+ .SH SYNOPSIS
+ .SS Temperature Voltage, Current, Memory, and Switch.
+ .PP
+--- a/src/man/man3/DS2760.man
++++ b/src/man/man3/DS2760.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2760 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2760, DS2761, DS2762
+-High-Precision Li+ Battery Monitor
++\- High-Precision Li+ Battery Monitor
+ .SH SYNOPSIS
+ .SS Temperature Voltage and Current.
+ .PP
+--- a/src/man/man3/DS2770.man
++++ b/src/man/man3/DS2770.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2770 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2770
+-Battery Monitor and Charge Controller
++\- Battery Monitor and Charge Controller
+ .SH SYNOPSIS
+ .SS Temperature Voltage Current Memory and Switch.
+ .PP
+--- a/src/man/man3/DS2780.man
++++ b/src/man/man3/DS2780.man
+@@ -10,11 +10,8 @@
+ '\"
+ .TH DS2760 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+-.B DS2780
+-Stand-alone Fuel Gauge IC
+-.TP
+-.B DS2788
++.B DS2780, DS2788
++\- Stand-alone Fuel Gauge IC,
+ Stand-alone Fuel Gauge with LED Drivers
+ .SH SYNOPSIS
+ .SS Temperature Voltage Current Memory and Switch.
+--- a/src/man/man3/DS2781.man
++++ b/src/man/man3/DS2781.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2760 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2781
+-Stand-alone Fuel Gauge IC
++\- Stand-alone Fuel Gauge IC
+ .SH SYNOPSIS
+ .SS Temperature Voltage Current Memory and Switch.
+ .PP
+--- a/src/man/man3/DS2890.man
++++ b/src/man/man3/DS2890.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS2890 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS2890
+-1-Wire Digital Potentiometer
++\- 1-Wire Digital Potentiometer
+ .SH SYNOPSIS
+ Variable resistance
+ .PP
+--- a/src/man/man3/DS28E04.man
++++ b/src/man/man3/DS28E04.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS28E04-100 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS28E04
+-1-Wire EEPROM chip (4096-bit) with seven address inputs
++\- 1-Wire EEPROM chip (4096-bit) with seven address inputs
+ .SH SYNOPSIS
+ 4096-bit EEPROM, 2 port switch
+ .PP
+--- a/src/man/man3/DS28EA00.man
++++ b/src/man/man3/DS28EA00.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS28EA00 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS28EA00
+-1-Wire Digital Thermometer with Sequence Detect and PIO
++\- 1-Wire Digital Thermometer with Sequence Detect and PIO
+ .SH SYNOPSIS
+ Thermometer, PIO and Chain.
+ .PP
+--- a/src/man/man3/DS28EC20.man
++++ b/src/man/man3/DS28EC20.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH DS28EC20 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B DS28EC20
+-EEPROM (20 kBit)
++\- EEPROM (20 kBit)
+ .SH SYNOPSIS
+ Erasable programmable read-only memory (EEPROM)
+ .PP
+--- a/src/man/man3/EDS.man
++++ b/src/man/man3/EDS.man
+@@ -12,7 +12,7 @@
+ .SH NAME
+ .TP
+ EDS
+-Embedded Data Systems Sensors
++\- Embedded Data Systems Sensors
+ .TP
+ .B EDS0064
+ Temperature
+@@ -435,10 +435,14 @@
+ .I read-write, floating-point
+ .br
+ Threshold RTD resistance values (Ohm).
+-.SS EDS0080/threshold/current_hi.[0-7|ALL]\tEDS0080/threshold/current_low.[0-7|ALL]
+-.SS EDS0082/threshold/volts_hi.[0-7|ALL]\tEDS0082/threshold/volts_low.[0-7|ALL]
+-.SS EDS0083/threshold/current_hi.[0-3|ALL]\tEDS0083/threshold/current_low.[0-3|ALL]
+-.SS EDS0085/threshold/volts_hi.[0-3|ALL]\tEDS0085/threshold/volts_low.[0-3|ALL|]
++.SS EDS0080/threshold/current_hi.[0-7|ALL]
++.SS EDS0080/threshold/current_low.[0-7|ALL]
++.SS EDS0082/threshold/volts_hi.[0-7|ALL]
++.SS EDS0082/threshold/volts_low.[0-7|ALL]
++.SS EDS0083/threshold/current_hi.[0-3|ALL]
++.SS EDS0083/threshold/current_low.[0-3|ALL]
++.SS EDS0085/threshold/volts_hi.[0-3|ALL]
++.SS EDS0085/threshold/volts_low.[0-3|ALL|]
+ .I read-write, floating-point
+ .br
+ Voltage or current threshold limits
+@@ -455,10 +459,14 @@
+ .SS EDS006X/set_alarm/light_hi \t\tEDS006X/set_alarm/light_low
+ .SS EDS0070/set_alarm/vib_hi \t\tEDS0070/set_alarm/vib_low
+ .SS EDS007X/set_alarm/resistance_hi \tEDS007X/set_alarm/resistance_low
+-.SS EDS0080/set_alarm/current_hi.[0-7|ALL|BYTE]\tEDS0080/set_alarm/current_low.[0-7|ALL|BYTE]
+-.SS EDS0082/set_alarm/volts_hi.[0-7|ALL|BYTE]\tEDS0082/set_alarm/volts_low.[0-7|ALL|BYTE]
+-.SS EDS0083/set_alarm/current_hi.[0-3|ALL|BYTE]\tEDS0083/set_alarm/current_low.[0-3|ALL|BYTE]
+-.SS EDS0085/set_alarm/volts_hi.[0-3|ALL|BYTE]\tEDS0085/set_alarm/volts_low.[0-3|ALL|BYTE]
++.SS EDS0080/set_alarm/current_hi.[0-7|ALL|BYTE]
++.SS EDS0080/set_alarm/current_low.[0-7|ALL|BYTE]
++.SS EDS0082/set_alarm/volts_hi.[0-7|ALL|BYTE]
++.SS EDS0082/set_alarm/volts_low.[0-7|ALL|BYTE]
++.SS EDS0083/set_alarm/current_hi.[0-3|ALL|BYTE]
++.SS EDS0083/set_alarm/current_low.[0-3|ALL|BYTE]
++.SS EDS0085/set_alarm/volts_hi.[0-3|ALL|BYTE]
++.SS EDS0085/set_alarm/volts_low.[0-3|ALL|BYTE]
+ .I read-write, yes-no
+ .br
+ Flag to set corresponding out-of-range alarm. "1" turns on flag, and "0" turns off.
+@@ -482,10 +490,14 @@
+ .SS EDS006X/alarm/light_hi \t\tEDS006X/alarm/light_low
+ .SS EDS0070/alarm/vib_hi \t\tEDS007X/alarm/vib_low
+ .SS EDS007X/alarm/resistance_hi \tEDS007X/alarm/resistance_low
+-.SS EDS0080/alarm/current_hi.[0-7|ALL|BYTE]\tEDS0080/alarm/current_low.[0-7|ALL|BYTE]
+-.SS EDS0082/alarm/volts_hi.[0-7|ALL|BYTE]\tEDS0082/alarm/volts_low.[0-7|ALL|BYTE]
+-.SS EDS0083/alarm/current_hi.[0-3|ALL|BYTE]\tEDS0083/alarm/current_low.[0-3|ALL|BYTE]
+-.SS EDS0085/alarm/volts_hi.[0-3|ALL|BYTE]\tEDS0085/alarm/volts_low.[0-3|ALL|BYTE]
++.SS EDS0080/alarm/current_hi.[0-7|ALL|BYTE]
++.SS EDS0080/alarm/current_low.[0-7|ALL|BYTE]
++.SS EDS0082/alarm/volts_hi.[0-7|ALL|BYTE]
++.SS EDS0082/alarm/volts_low.[0-7|ALL|BYTE]
++.SS EDS0083/alarm/current_hi.[0-3|ALL|BYTE]
++.SS EDS0083/alarm/current_low.[0-3|ALL|BYTE]
++.SS EDS0085/alarm/volts_hi.[0-3|ALL|BYTE]
++.SS EDS0085/alarm/volts_low.[0-3|ALL|BYTE]
+ .SS EDS0090/alarm/hi[0-7|ALL] \tEDS0090/alarm/low[0-7|ALL]
+ .I read-only, yes-no
+ .br
+@@ -651,6 +663,7 @@
+ .TP
+ .B EDS0064 EDS0065 EDS0066 EDS0067 EDS0068
+ https://docs.google.com/viewer?a=v&pid=explorer&chrome=true&srcid=0B_K3iXLLAI7vN2E4NGUwMGItMzc5MS00NDNmLTljZGYtN2NmM2Q3YWE5NmVh&hl=en
++.TP
+ .B EDS0070
+ http://www.embeddeddatasystems.com/assets/images/supportFiles/manuals/EN-UserMan%20%20OW-Vibration%20V01.pdf
+ .TP
+--- a/src/man/man3/EEEF.man
++++ b/src/man/man3/EEEF.man
+@@ -10,14 +10,9 @@
+ '\"
+ .TH HobbyBoards_EE/EF 3  2009 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP 
+-EEEF
+-HobbyBoards EE/EF Microprocessor-based slaves
+-.TP
+-UVI
+-Ultra Violet (UV) Index sensor
+-.TP
+-Moisture
++EEEF, UVI, Moisture
++\- HobbyBoards EE/EF Microprocessor-based slaves,
++Ultra Violet (UV) Index sensor,
+ Soil and Leaf moisture measurements
+ .TP
+ HUB
+--- a/src/man/man3/LCD.man
++++ b/src/man/man3/LCD.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH LCD 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B LCD
+-LCD controller
++\- LCD controller
+ .SH SYNOPSIS
+ 1-wire LCD controller by Louis Swart
+ .PP
+--- a/src/man/man3/mAM001.man
++++ b/src/man/man3/mAM001.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH mAM001 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B mAM001
+-Analog Input Module
++\- Analog Input Module
+ .SH SYNOPSIS
+ .SS Voltage or current meter.
+ .PP
+--- a/src/man/man3/mCM001.man
++++ b/src/man/man3/mCM001.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH mCM001 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B mCM001
+-AC Current Monitor
++\- AC Current Monitor
+ .SH SYNOPSIS
+ .SS AC Amp meter.
+ .PP
+@@ -34,8 +33,7 @@
+ Range
+ 0-5A
+ .TP
+-Resolution
+-.01A
++Resolution .01A
+ .TP
+ Units
+ A (amperes)
+--- a/src/man/man3/mDI001.man
++++ b/src/man/man3/mDI001.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH mDI001 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B mDI001
+-Digital Input Module
++\- Digital Input Module
+ .SH SYNOPSIS
+ .SS Monitor 4 digital lines
+ .PP
+--- a/src/man/man3/mRS001.man
++++ b/src/man/man3/mRS001.man
+@@ -10,9 +10,8 @@
+ '\"
+ .TH mRS001 3  2003 "OWFS Manpage" "One-Wire File System"
+ .SH NAME
+-.TP
+ .B mRS001
+-Rotation Sensor
++\- Rotation Sensor
+ .SH SYNOPSIS
+ .SS Rotation (in RPM)
+ .PP

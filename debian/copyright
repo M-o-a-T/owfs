@@ -1,52 +1,296 @@
-This package was debianized by Matthias Urlichs <smurf@debian.org> on
-Tue, 15 May 2007 11:59:13 +0200.
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: OWFS
+Upstream-Contact: Paul Alfille <paul.alfille@gmail.com>
+Source: http://owfs.org/
 
-It was downloaded from owfs.sourceforge.net's CVS repository.
+Files: *
+Copyright: © 2003-2014 Paul Alfille <paul.alfille@gmail.com>
+License: GPL-2
 
-Upstream Author: Paul H Allfille et al., see /usr/share/doc/one.wire/AUTHORS.
+Files: module/swig/perl5/OW/*
+Copyright: © 2003-2014 Paul Alfille <paul.alfille@gmail.com>
+License: Artistic or GPL-1+
 
-Copyright: (C) 2003-2007, Paul H Allfille et al.
+Files: module/swig/python/*
+       module/ownet/python/*
+Copyright: © 2004, 2005 Peter Kropf
+License: GPL-2
 
-License:
-   This package is free software; you can redistribute it and/or modify
-   it under the terms of the GNU General Public License as published by
-   the Free Software Foundation; either version 2 of the License, or
-   (at your option) any later version.
+Files: module/owshell/src/c/getaddrinfo.c
+Copyright: © 1996 Craig Metz
+License: The_Inner_Net_License,_Version_2.00
 
-   This package is distributed in the hope that it will be useful,
-   but WITHOUT ANY WARRANTY; without even the implied warranty of
-   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-   GNU General Public License for more details.
+Files: module/ownet/c/src/c/ow_charblob.c
+    module/ownet/c/src/include/ow_charblob.h
+    module/ownet/c/src/include/compat.h
+    module/ownet/c/src/include/ow_global.h
+    module/ownet/c/src/include/ow_functions.h
+    module/ownet/c/src/include/ow_connection.h
+    module/ownet/c/src/include/ow_localtypes.h
+    module/ownet/c/src/include/ow_mutexes.h
+    module/owlib/src/c/ow_memblob.c
+    module/owlib/src/c/ow_none.c
+    module/owlib/src/include/ow_memblob.h
+    module/owlib/src/include/ow_counters.h
+    module/owlib/src/include/compat.h
+    module/owlib/src/include/ow_global.h
+    module/owlib/src/include/ow_busnumber.h
+    module/owlib/src/include/ow_localreturns.h
+    module/owlib/src/include/ow_parse_address.h
+    module/owlib/src/include/ow.h
+    module/owlib/src/include/ow_connection.h
+    module/owlib/src/include/ow_localtypes.h
+    module/owlib/src/include/ow_reset.h
+    module/owlib/src/include/ow_usb_cycle.h
+    module/owlib/src/include/ow_bitwork.h
+    module/owlib/src/include/ow_mutexes.h
+    module/owlib/src/include/ow_search.h
+    module/owlib/src/include/ow_stateinfo.h
+    module/owlib/src/include/ow_detect.h
+    module/owlib/src/include/ow_bus_routines.h
+    module/owlib/src/include/ow_transaction.h
+    module/owlib/src/include/ow_fd.h
+Copyright: © 2000 Dallas Semiconductor Corporation
+           © Paul Alfille <paul.alfille@gmail.com>
+License: GPL-2 or MIT
 
-   You should have received a copy of the GNU General Public License
-   along with this package; if not, write to the Free Software
-   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+Files: module/ownet/c/src/include/ow_dnssd.h
+Copyright: © 2003-2004, Apple Computer
+License: other-Apple
 
-On Debian systems, the complete text of the GNU General
-Public License can be found in `/usr/share/common-licenses/GPL'.
+Files: module/ownet/php/examples/ownet_example.php.in
+       module/ownet/php/ownet.php
+Copyright: © 2006 Spadim Technology / Brazil
+License: GPL-2
 
+Files: module/owftpd/*
+Copyright: © Shane Kerr <shane@time-travellers.org>
+           © Paul Alfille <paul.alfille@gmail.com>
+           © Beau Kuiper <kuiperba@cs.curtin.edu.au>
+           © Mauro Tortonesi <mauro@ferrara.linux.it>
+           © Matthew Danish <mdanish@andrew.cmu.edu>
+           © Eric Jensen
+           © Anders Nordby <anders@fix.no>
+License: BSD-2-Clauses
 
-The TCL bindings of OWFS are licensed under the GNU Lesser General Public
-License:
+Files: module/owftpd/install-sh
+Copyright: © 1991 Massachusetts Institute of Technology
+License: other-MIT
 
-    This package is free software; you can redistribute it and/or
-    modify it under the terms of the GNU Lesser General Public
-    License as published by the Free Software Foundation; either
-    version 2 of the License, or (at your option) any later version.
+Files: module/owhttpd/src/c/owhttpd.c
+Copyright: © greg olszewski <noop@nwonknu.org>
+           © David A. Bartold
+           © Paul Alfille <paul.alfille@gmail.com>
+License: GPL-2
 
-    This package is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-    Lesser General Public License for more details.
+Files: module/owlib/src/c/ow_w1_parse.c
+        module/owlib/src/c/ow_w1_select.c
+        module/owlib/src/c/ow_w1_print.c
+        module/owlib/src/c/ow_w1_bind.c
+        module/owlib/src/c/ow_w1_list.c
+        module/owlib/src/c/ow_w1_scan.c
+        module/owlib/src/c/ow_w1_dispatch.c
+        module/owlib/src/c/ow_w1_send.c
+        module/owlib/src/include/connector.h
+        module/owlib/src/include/w1_netlink.h
+Copyright: © 2004 Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+           © Paul Alfille <paul.alfille@gmail.com>
+           © 2005 Ben Gardner <bgardner@wabtec.com>
+License: GPL-2
 
-    You should have received a copy of the GNU Lesser General Public
-    License along with this package; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+Files: module/owlib/src/include/i2c-dev.h
+Copyright: © 1995-97 Simon G. Vogl
+           © 1998-99 Frodo Looijaard <frodol@dds.nl>
+License: GPL-2
 
-On Debian systems, the complete text of the GNU Lesser General
-Public License can be found in `/usr/share/common-licenses/LGPL'.
+Files: module/owtcl/*
+Copyright: © Serg Oskin
+License: LGPL-2
 
+Files: debian/*
+Copyright: © 2010 Ilya Pravdivtsev <kabus1917@gmail.com>
+           © 2010-2011 Vincent Danjean <vdanjean@debian.org>
+License: GPL-2
 
-The Debian packaging is (C) 2007, Matthias Urlichs <smurf@debian.org> and
-is licensed under the GPL, see above.
+License: GPL-2
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this package; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+Comment:
+ On Debian systems, the complete text of the GNU General
+ Public License can be found in `/usr/share/common-licenses/GPL-2'.
+
+License: Artistic
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the Artistic License, which comes with Perl.
+ .
+ On Debian GNU/Linux systems, the complete text of the Artistic License
+ can be found in `/usr/share/common-licenses/Artistic'.
+
+License: GPL-1+
+ This program is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 1, or (at your option)
+ any later version.
+ .
+ On Debian GNU/Linux systems, the complete text of version 1 of the
+ General Public License can be found in `/usr/share/common-licenses/GPL-1'.
+
+License: LGPL-2
+ This package is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2 of the License, or (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ .
+ You should have received a copy of the GNU Lesser General Public
+ License along with this package; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ .
+ On Debian systems, the complete text of the GNU Lesser General
+ Public License can be found in `/usr/share/common-licenses/LGPL-2'.
+
+License: MIT
+ Permission is hereby granted, free of charge, to any person obtaining a
+ copy of this software and associated documentation files (the "Software"),
+ to deal in the Software without restriction, including without limitation
+ the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ and/or sell copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following conditions:
+ The above copyright notice and this permission notice shall be included
+ in all copies or substantial portions of the Software.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY,  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL DALLAS SEMICONDUCTOR BE LIABLE FOR ANY CLAIM, DAMAGES
+ OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ OTHER DEALINGS IN THE SOFTWARE.
+ Except as contained in this notice, the name of Dallas Semiconductor
+ shall not be used except as stated in the Dallas Semiconductor
+ Branding Policy.
+
+License: other-MIT
+ Permission to use, copy, modify, distribute, and sell this software and its
+ documentation for any purpose is hereby granted without fee, provided that
+ the above copyright notice appear in all copies and that both that
+ copyright notice and this permission notice appear in supporting
+ documentation, and that the name of M.I.T. not be used in advertising or
+ publicity pertaining to distribution of the software without specific,
+ written prior permission.  M.I.T. makes no representations about the
+ suitability of this software for any purpose.  It is provided "as is"
+ without express or implied warranty.
+ .
+ Calling this script install-sh is preferred over install.sh, to prevent
+ `make' implicit rules from creating a file called install from it
+ when there is no Makefile.
+ .
+ This script is compatible with the BSD install script, but was written
+ from scratch.  It can only install one file at a time, a restriction
+ shared with many OS's install programs.
+
+License: BSD-2-Clauses
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are
+ met:
+ .
+     1.  Redistributions of source code must retain the above copyright
+         notice, this list of conditions and the following disclaimer.
+ .
+     2.  Redistributions in binary form must reproduce the above
+     copyright notice, this list of conditions and the following
+     disclaimer in the documentation and/or other materials provided
+     with the distribution.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR(S) ``AS IS'' AND ANY EXPRESS OR
+ IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE FOR
+ ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT,
+ STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ POSSIBILITY OF SUCH DAMAGE.
+
+License: The_Inner_Net_License,_Version_2.00
+   The author(s) grant permission for redistribution and use in source and
+ binary forms, with or without modification, of the software and documentation
+ provided that the following conditions are met:
+ .
+ 0. If you receive a version of the software that is specifically labelled
+    as not being for redistribution (check the version message and/or README),
+    you are not permitted to redistribute that version of the software in any
+    way or form.
+ 1. All terms of the all other applicable copyrights and licenses must be
+    followed.
+ 2. Redistributions of source code must retain the authors' copyright
+    notice(s), this list of conditions, and the following disclaimer.
+ 3. Redistributions in binary form must reproduce the authors' copyright
+    notice(s), this list of conditions, and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ 4. All advertising materials mentioning features or use of this software
+    must display the following acknowledgement with the name(s) of the
+    authors as specified in the copyright notice(s) substituted where
+    indicated:
+ .
+     This product includes software developed by <name(s)>, The Inner
+     Net, and other contributors.
+ .
+ 5. Neither the name(s) of the author(s) nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY ITS AUTHORS AND CONTRIBUTORS ``AS IS'' AND ANY
+ EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL THE AUTHORS OR CONTRIBUTORS BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ .
+   If these license terms cause you a real problem, contact the author.  */
+
+License: other-Apple
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions are met:
+ *
+ * 1.  Redistributions of source code must retain the above copyright notice,
+ *     this list of conditions and the following disclaimer.
+ * 2.  Redistributions in binary form must reproduce the above copyright notice,
+ *     this list of conditions and the following disclaimer in the documentation
+ *     and/or other materials provided with the distribution.
+ * 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of its
+ *     contributors may be used to endorse or promote products derived from this
+ *     software without specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+ * EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+ * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
 

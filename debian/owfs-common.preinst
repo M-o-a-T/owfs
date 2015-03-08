@@ -1,0 +1,22 @@
+#!/bin/sh
+set -e
+
+last=
+for i in $(ls /etc/modprobe.d/libow-*-*.conf 2>/dev/null)
+do
+  if test "$(md5sum < "$i")" \
+	!= "9c0ce25c8de4426c2dff7738ccf67f96  -"; then
+    # a file has been modified. We will keep it.
+    last="$i".dpkg-old
+  fi
+  # removing old config files for previous ow libraries
+  # (they will be really removed when the package will be purged)
+  mv "$i" "$i".dpkg-old
+done
+
+if [ -n "$last" ]; then
+  # We try to keep user modifications
+  cp -a "$last" /etc/modprobe.d/libow-common.conf
+fi
+
+#DEBHELPER#

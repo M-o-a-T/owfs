@@ -1,0 +1,4 @@
+version=3
+
+opts=dversionmangle=s/\+dfsg[1-9]// \
+http://sf.net/owfs/owfs-(.*)\.tar\.gz
