@@ -1,3 +1,9 @@
+owfs (3.0p0-1) unstable; urgency=medium
+
+  * Build version 3.0p0
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Sun, 08 Mar 2015 11:56:58 +0100
+
 owfs (2.9p8-6) unstable; urgency=medium
 
   * Hide ls error messages when nothing have to do done on
