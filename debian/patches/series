@@ -1,4 +1,3 @@
-fix-section-tcl-manpages.patch
 for-upstream_manpage-typos.patch
 for-upstream_manpage-name-section.patch
 deb-specific_python-install.patch

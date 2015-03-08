@@ -5,24 +5,24 @@ MANFILES = \
 SOFILES = \
     description.nso seealso.nso
 ## man files that need no preprocessing
-dist_mann_MANS = \
-    ow.n
+dist_man3_MANS = \
+    ow.3
 ## file to include in distribution
 EXTRA_DIST = $(SOFILES) $(MANFILES)
 
 
 if SOELIM
 
-mann_MANS = $(addsuffix .n,$(basename $(MANFILES)))
-CLEANFILES = $(mann_MANS)
+man3_MANS = $(addsuffix .3,$(basename $(MANFILES)))
+CLEANFILES = $(man3_MANS)
 
 # preproc man pages via soelim
-$(mann_MANS): $(MANFILES) $(SOFILES)
-%.n :: %.man
+$(man3_MANS): $(MANFILES) $(SOFILES)
+%.3 :: %.man
 	$(SOELIM) -r -I $(srcdir)/.. $< > $@
 
 else !SOELIM
 
-mann_MANS = $(MANFILES) $(SOFILES)
+man3_MANS = $(MANFILES) $(SOFILES)
 
 endif !SOELIM
