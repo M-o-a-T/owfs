@@ -43,5 +43,5 @@ AM_CFLAGS = -I../include \
 	-Wredundant-decls \
 	${EXTRACFLAGS}
 
-LDADD = ${LD_EXTRALIBS} ${OSLIBS}
+LDADD = ${DL_LIBS} ${LD_EXTRALIBS} ${OSLIBS}
 
