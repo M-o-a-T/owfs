@@ -1,4 +1,3 @@
-tcltk.patch
 linkage.patch
 fix-section-tcl-manpages.patch
 for-upstream_manpage-typos.patch

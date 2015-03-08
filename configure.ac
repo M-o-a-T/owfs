@@ -810,7 +810,7 @@ if test "${ENABLE_OWTCL}" = "true" ; then
 				;;
 		esac
 		# Debian Hack: do not install in /usr/local/lib/tcltk
-		# OWTCL_INSTALL_PATH="/usr/lib/tcltk"
+		OWTCL_INSTALL_PATH="/usr/lib/tcltk"
 		AC_SUBST(OWTCL_INSTALL_PATH)
 	fi
 fi
