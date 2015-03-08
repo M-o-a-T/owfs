@@ -456,27 +456,6 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  aliaslist_mb@Base 2.8p7+cvs20110310
  all_avg@Base 2.8p4
  ampm@Base 2.8p4
- avahi_client@Base 2.8p4
- avahi_client_errno@Base 2.8p4
- avahi_client_free@Base 2.8p4
- avahi_client_get_domain_name@Base 2.8p4
- avahi_client_new@Base 2.8p4
- avahi_common@Base 2.8p4
- avahi_entry_group_add_service@Base 2.8p4
- avahi_entry_group_commit@Base 2.8p4
- avahi_entry_group_is_empty@Base 2.8p4
- avahi_entry_group_new@Base 2.8p4
- avahi_entry_group_reset@Base 2.8p4
- avahi_service_browser_free@Base 2.8p4
- avahi_service_browser_new@Base 2.8p4
- avahi_service_resolver_free@Base 2.8p4
- avahi_service_resolver_new@Base 2.8p4
- avahi_simple_poll_free@Base 2.8p4
- avahi_simple_poll_get@Base 2.8p4
- avahi_simple_poll_loop@Base 2.8p4
- avahi_simple_poll_new@Base 2.8p4
- avahi_simple_poll_quit@Base 2.8p4
- avahi_strerror@Base 2.8p4
  badUSBname@Base 2.8p4
  bytes2string@Base 2.8p4
  cache_adds@Base 2.8p4
