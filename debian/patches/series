@@ -1,3 +1,2 @@
-deb_specific__owfs-use-config.patch
 for-upstream_fix-ABI.patch
 for-upstream_owexist-manpage.patch

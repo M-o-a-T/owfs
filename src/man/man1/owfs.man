@@ -42,6 +42,11 @@ Sends options to the fuse-mount process. Options should be quoted, e.g. "\"\-o a
 .so man1/format.1so
 .so man1/job_control.1so
 .so man1/configuration.1so
++.PP
++On Debian,
++.B owfs (1)
++always reads
++.I /etc/owfs.conf
 .so man1/help.1so
 .so man1/timeout.1so
 .SH EXAMPLE
