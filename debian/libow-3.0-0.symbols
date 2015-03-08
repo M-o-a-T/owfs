@@ -45,6 +45,8 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  Aliaslist@Base 2.8p7+cvs20110310
  AlwaysVisible@Base 2.8p4
  Announce_Systemd@Base 2.9p7
+ ArgCopy@Base 3.0p0-1
+ ArgFree@Base 3.0p0-1
  AllocPort@Base 2.8p17
  AuxDirMarkerLoc@Base 2.8p13
  AuxDirectory_Marker@Base 2.8p13
@@ -126,6 +128,7 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  CRC16@Base 2.8p4
  CRC16_errors@Base 2.8p4
  CRC16_tries@Base 2.8p4
+ CRC16compute@Base 3.0p0-1
  CRC16seeded@Base 2.8p4
  CRC8@Base 2.8p4
  CRC8_errors@Base 2.8p4
@@ -168,6 +171,8 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  ClientAddr@Base 2.8p4
  DD@Base 2.9p1
  ClientConnect@Base 2.8p4
+ Config_Monitor_Add@Base 3.0p0-1
+ Config_Monitor_Watch@Base 3.0p0-1
  DIE@Base 2.8p4
  DL_close@Base 2.8p4
  DL_error@Base 2.8p4
@@ -307,6 +312,7 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  HA7_detect@Base 2.8p4
  Inbound_Control@Base 2.8p4
  Init_Pipe@Base 2.8p13
+ InterruptListening@Base 3.0p0-1
  LINK_detect@Base 2.8p4
  LINK_id_tbl@Base 2.8p4
  LibClose@Base 2.8p4
@@ -363,9 +369,8 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  OW_Avahi_Announce@Base 2.8p4
  OW_Avahi_Browse@Base 2.8p4
  OW_Browse@Base 2.8p4
- OW_Free_avahi_library@Base 2.8p4
+#MISSING: 3.0p0-1# OW_Free_avahi_library@Base 2.8p4
  OW_Free_dnssd_library@Base 2.8p4
- OW_Load_avahi_library@Base 2.8p4
  OW_Load_dnssd_library@Base 2.8p4
  Outbound_Control@Base 2.8p4
  PBM_SendCMD@Base 2.9p5
@@ -406,6 +411,7 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  SetKnownBus@Base 2.8p4
  SetLocalControlFlags@Base 2.8p13
  SetVisibilityCache@Base 2.8p4
+ Setup_Launchd@Base 3.0p0-1
  Setup_Systemd@Base 2.9p7
  StateInfo@Base 2.8p4
  Temperature@Base 2.8p4
@@ -472,6 +478,7 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  cond_timedwait_failed@Base 2.8p4
  cond_wait_failed@Base 2.8p4
  d_BAE@Base 2.8p4
+ d_DEV_MOAT@Base 3.0p0-1
  d_DS1420@Base 2.8p4
  d_DS1425@Base 2.8p4
  d_DS1821@Base 2.8p4
@@ -603,8 +610,10 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  lp_reboot@Base 2.9p7
  lp_tc_humidity@Base 2.9p7
  lp_tc_humidity_offset@Base 2.9p7
+ lp_type_number@Base 3.0p0-1
  lp_uvi@Base 2.9p7
  lp_uvi_offset@Base 2.9p7
+ lp_version_number@Base 3.0p0-1
  main_threadid@Base 2.8p13
  main_threadid_init@Base 2.8p13
  max_delay@Base 2.8p4
