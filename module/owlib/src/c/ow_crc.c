@@ -91,8 +91,8 @@ int CRC16(const BYTE * bytes, const size_t length)
 	return CRC16seeded(bytes, length, 0);
 }
 
-/* Returns 0 for good match */
-int CRC16seeded(const BYTE * bytes, const size_t length, const UINT seed)
+/* Returns the new seed */
+int CRC16compute(const BYTE * bytes, const size_t length, const UINT seed)
 {
 	UINT sd = seed;
 	int ret;
@@ -107,6 +107,15 @@ int CRC16seeded(const BYTE * bytes, const size_t length, const UINT seed)
 		sd ^= (c <<= 6);
 		sd ^= (c << 1);
 	}
+	return sd;
+}
+
+/* Returns 0 for good match */
+int CRC16seeded(const BYTE * bytes, const size_t length, const UINT seed)
+{
+	int ret;
+	UINT sd = CRC16compute(bytes,length, seed);
+
 	STATLOCK;
 	++CRC16_tries;				/* statistics */
 	if (sd == 0xB001) {
