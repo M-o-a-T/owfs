@@ -1,4 +1,4 @@
-libowcapi-2.9.so.8 libowcapi-2.9-8 #MINVER#
+libowcapi-3.0.so.0 libowcapi-3.0-0 #MINVER#
 * Build-Depends-Package: libowfs-dev
  OW_finish@Base 2.8p4
  OW_get@Base 2.8p4

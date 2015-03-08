@@ -1,4 +1,4 @@
-libow-2.9.so.8 libow-2.9-8 #MINVER#
+libow-3.0.so.0 libow-3.0-0 #MINVER#
 * Build-Depends-Package: libowfs-dev
 (arch=linux-any)#include "libow-symbols.w1"
  ALLtoBYTE@Base 2.8p4
@@ -380,6 +380,7 @@ libow-2.9.so.8 libow-2.9-8 #MINVER#
  PressureData@Base 2.8p4
  PressureScaleName@Base 2.8p4
  ReCheckPresence@Base 2.8p4
+ ReExecute@Base 3.0p0
  ReadAliasFile@Base 2.8p7
  RemoteAlias@Base 2.8p4
  RemoteDevice@Base 2.8p13

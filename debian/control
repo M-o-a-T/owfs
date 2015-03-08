@@ -39,7 +39,7 @@ Description: Dallas 1-wire support
  Installing this package gets you a FUSE daemon, server arbitrates access
  to the bus from multiple client processes, small ftp and webserver.
 
-Package: libow-2.9-8
+Package: libow-3.0-0
 Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
@@ -53,7 +53,7 @@ Description: 1-Wire File System full library
  This package includes the ow library that is able to talk directly to 1-wire
  buses.
 
-Package: libowcapi-2.9-8
+Package: libowcapi-3.0-0
 Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
@@ -71,8 +71,8 @@ Package: libow-dev
 Section: libdevel
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- libow-2.9-8 (= ${binary:Version}),
- libowcapi-2.9-8 (= ${binary:Version})
+ libow-3.0-0 (= ${binary:Version}),
+ libowcapi-3.0-0 (= ${binary:Version})
 Description: 1-Wire File System (development files)
  The 1-Wire bus is a cheap low-speed bus for devices like weather
  sensors, access control, etc. It can be attached to your system via
@@ -80,7 +80,7 @@ Description: 1-Wire File System (development files)
  .
  This package includes development libraries and C header files.
 
-Package: libownet-2.9-8
+Package: libownet-3.0-0
 Section: libs
 Architecture: any
 Pre-Depends: ${misc:Pre-Depends}
@@ -98,7 +98,7 @@ Package: libownet-dev
 Section: libdevel
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends},
- libownet-2.9-8 (= ${binary:Version}),
+ libownet-3.0-0 (= ${binary:Version}),
 Description: owserver protocol library (development files)
  The 1-Wire bus is a cheap low-speed bus for devices like weather
  sensors, access control, etc. It can be attached to your system via
@@ -296,7 +296,7 @@ Description: Dallas 1-wire support: Documentation for owfs
 Package: owfs-dbg
 Architecture: any
 Section: debug
-Depends: libow-2.9-8 (= ${binary:Version}) |
+Depends: libow-3.0-0 (= ${binary:Version}) |
  owfs (= ${binary:Version}) |
  owserver (= ${binary:Version}) |
  owhttpd (= ${binary:Version}) |

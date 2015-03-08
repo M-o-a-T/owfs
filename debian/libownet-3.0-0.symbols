@@ -1,4 +1,4 @@
-libownet-2.9.so.8 libownet-2.9-8 #MINVER#
+libownet-3.0.so.0 libownet-3.0-0 #MINVER#
 * Build-Depends-Package: libowfs-dev
  BUS_lock_in@Base 2.8p4
  BUS_unlock_in@Base 2.8p4
