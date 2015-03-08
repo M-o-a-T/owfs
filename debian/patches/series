@@ -1,4 +1,3 @@
-for-upstream_manpage-typos.patch
 for-upstream_manpage-name-section.patch
 deb-specific_python-install.patch
 deb_specific__owfs-use-config.patch
