@@ -17,6 +17,9 @@ $Id$
 
 #include "owfs.h"
 #include "ow_connection.h"
+#ifdef __FreeBSD_kernel__
+#include "sys/param.h"
+#endif
 #include "sys/mount.h"
 
 /*
@@ -128,7 +131,11 @@ int main(int argc, char *argv[])
 
 	// Unmount just in case
 	// No checks -- can fail without consequences
+#ifdef __FreeBSD_kernel__
+	unmount( Outbound_Control.head->name, 0);
+#else
 	umount( Outbound_Control.head->name ) ;
+#endif
 
 	Fuse_parse(fuse_mnt_opt, &fuse_options);
 	LEVEL_DEBUG("fuse_mnt_opt=[%s]", fuse_mnt_opt);
