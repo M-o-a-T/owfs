@@ -41,6 +41,6 @@ install-data-local: OW/Makefile OW/ow_wrap.c OW/blib/lib/OW.pm
 	$(MAKE) -C OW install DESTDIR="$(DESTDIR)"
 
 clean-local:
-	if test -f OW/Makefile; then cd OW; $(MAKE) clean; fi
+	if test -f OW/Makefile; then cd OW; $(MAKE) clean || true; fi
 	@RM@ -f OW/Makefile.old OW/Makefile OW/Makefile.PL OW/OW.pm OW/OW.bs OW/ow_wrap.c
 

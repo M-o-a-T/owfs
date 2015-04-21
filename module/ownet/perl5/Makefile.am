@@ -21,6 +21,6 @@ endif
 #	( cd OWNet; $(MAKE) ; $(MAKE) test; $(MAKE) install )
 
 clean-generic:
-	if test -f OWNet/Makefile; then cd OWNet; $(MAKE) clean; fi
+	if test -f OWNet/Makefile; then cd OWNet; $(MAKE) clean || true; fi
 	@RM@ -f OWNet/Makefile.old OWNet/Makefile
 
