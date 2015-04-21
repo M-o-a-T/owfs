@@ -14,12 +14,14 @@ endif
 
 OW/Makefile: OW/Makefile.PL
 if HAVE_DARWIN
-	( cd OW; $(PERL) Makefile.PL )
+	cd OW ; $(PERL) Makefile.PL
 else
 if HAVE_DEBIAN
-	( cd OW; $(PERL) Makefile.PL INSTALLDIRS=vendor )
+	cd OW ; $(PERL) Makefile.PL INSTALLDIRS=vendor
+	cd OW ; for i in `grep -wl ^LD_RUN_PATH Makefile Makefile.[^P]*` ; do sed -i 's@^LD_RUN_PATH.*@LD_RUN_PATH=@' $$i ; done
+
 else
-	( cd OW; $(PERL) Makefile.PL )
+	cd OW; $(PERL) Makefile.PL
 if HAVE_FREEBSD
 	$(PERL) -pi -e 's/ doc_(perl|site|\$$\(INSTALLDIRS\))_install$$//' OW/Makefile
 
@@ -41,6 +43,6 @@ install-data-local: OW/Makefile OW/ow_wrap.c OW/blib/lib/OW.pm
 	$(MAKE) -C OW install DESTDIR="$(DESTDIR)"
 
 clean-local:
-	if test -f OW/Makefile; then cd OW; $(MAKE) clean || true; fi
+	-test ! -f OW/Makefile || $(MAKE) -C OW clean
 	@RM@ -f OW/Makefile.old OW/Makefile OW/Makefile.PL OW/OW.pm OW/OW.bs OW/ow_wrap.c
 
