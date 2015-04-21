@@ -2,8 +2,8 @@ Source: owfs
 Priority: extra
 Maintainer: Vincent Danjean <vdanjean@debian.org>
 Build-Depends: debhelper (>= 9~), quilt, autotools-dev,
- libfuse-dev, swig, python-all-dev (>= 2.6.6-3~), tcl-dev, libusb-dev,
- php5-cli, php5-dev, ed, systemd [linux-any], groff-base
+ libfuse-dev, swig, python-all-dev (>= 2.6.6-3~), libusb-dev,
+ ed, systemd [linux-any], groff-base
 Standards-Version: 3.9.6
 Section: electronics
 Homepage: http://owfs.org/
@@ -192,53 +192,6 @@ Description: FTP daemon providing access to 1-Wire networks
  .
  FTP daemon providing access to 1-Wire networks.
 
-Package: libow-php5
-Architecture: any
-Section: web
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${php:Depends}
-Description: Dallas 1-wire support: PHP5 bindings
- The 1-Wire bus is a cheap low-speed bus for devices like weather
- sensors, access control, etc. It can be attached to your system via
- serial, USB, I2C, and other interfaces.
- .
- PHP bindings for the OWFS 1-wire support library have been produced
- with SWIG and allow access to libow2.8 functions from PHP code.
-
-Package: libownet-php
-Architecture: all
-Section: web
-Depends: php5 | php5-cli, ${misc:Depends}
-Description: Dallas 1-wire support: PHP OWNet library
- The 1-Wire bus is a cheap low-speed bus for devices like weather
- sensors, access control, etc. It can be attached to your system via
- serial, USB, I2C, and other interfaces.
- .
- The PHP OWNet library lets you access owserver and allows reading,
- writing and listing the 1-wire bus.
-
-Package: libow-perl
-Architecture: any
-Section: perl
-Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends}
-Description: Dallas 1-wire support: Perl5 bindings
- The 1-Wire bus is a cheap low-speed bus for devices like weather
- sensors, access control, etc. It can be attached to your system via
- serial, USB, I2C, and other interfaces.
- .
- Perl bindings for the OWFS 1-wire support library have been produced
- with SWIG and allow access to libow functions from perl code.
-
-Package: libownet-perl
-Architecture: all
-Section: perl
-Depends: ${shlibs:Depends}, ${perl:Depends}, ${misc:Depends}
-Description: Perl module for accessing 1-wire networks
- The 1-Wire bus is a cheap low-speed bus for devices like weather
- sensors, access control, etc. It can be attached to your system via
- serial, USB, I2C, and other interfaces.
- .
- OWNet.pm is a perl module for accessing 1-wire sensors through an owserver.
-
 Package: python-ow
 Architecture: any
 Section: python
@@ -267,18 +220,6 @@ Description: Python module for accessing 1-wire networks
  OWnet is a standalone Python module for accessing 1-wire sensors
  through an owserver.
 
-Package: libow-tcl
-Architecture: any
-Section: devel
-Depends: ${shlibs:Depends}, ${misc:Depends}
-Description: Dallas 1-wire support: Tcl bindings
- The 1-Wire bus is a cheap low-speed bus for devices like weather
- sensors, access control, etc. It can be attached to your system via
- serial, USB, I2C, and other interfaces.
- .
- This package contains Tcl bindings to the OWFS core library (libow),
- which is used to access 1-Wire networks
-
 Package: owfs-doc
 Architecture: all
 Section: doc
@@ -301,10 +242,7 @@ Depends: libow-3.0-0 (= ${binary:Version}) |
  owserver (= ${binary:Version}) |
  owhttpd (= ${binary:Version}) |
  owftpd (= ${binary:Version}) |
- libow-tcl (= ${binary:Version}) |
  python-ow (= ${binary:Version}) |
- libow-php5 (= ${binary:Version}) |
- libow-perl (= ${binary:Version}),
  ${misc:Depends}
 Description: Debugging symbols for the OWFS packages
  The 1-Wire bus is a cheap low-speed bus for devices like weather

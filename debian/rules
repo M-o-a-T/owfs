@@ -36,10 +36,10 @@ CONFIGURE_OPTIONS=\
 	--enable-owmon        \
 	--enable-owcapi       \
 	--enable-swig         \
-	--enable-owperl       \
-	--enable-owphp        \
+	--disable-owperl       \
+	--disable-owphp        \
 	--enable-owpython     \
-	--enable-owtcl        \
+	--disable-owtcl        \
 	--enable-owfs         \
 	--enable-zero         \
 	--enable-usb          \
@@ -85,7 +85,7 @@ override_dh_strip:
 
 override_dh_makeshlibs:
 	dh_makeshlibs --no-package libow-php5 --no-package libow-tcl
-	echo "php:Depends=phpapi-$$(php-config5 --phpapi)" >> debian/libow-php5.substvars
+	#echo "php:Depends=phpapi-$$(php-config5 --phpapi)" >> debian/libow-php5.substvars
 
 clean:
 	dh clean $(DH_OPTIONS)
