@@ -28,6 +28,7 @@
 # built man pages
 src/man/man1/*.1
 src/man/man3/*.3
+src/man/man5/*.5
 
 # everything else
 /blib/
