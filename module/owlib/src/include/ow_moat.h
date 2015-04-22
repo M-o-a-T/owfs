@@ -45,13 +45,13 @@ DeviceHeader(MOAT);
 
 typedef enum {
 	M_CONSOLE = 0,
-	M_INPUT,
-	M_OUTPUT,
-	M_TEMP,
-	M_HUMID,
-	M_ADC,
-	M_PID,
-	M_PWM,
+	M_PORT,   // binary input/output
+	M_SMOKE,  // smoke detector
+	M_TEMP,   // temperature sensor
+	M_HUMID,  // humidity sensor
+	M_ADC,    // analog input
+	M_PID,    // controller
+	M_PWM,    // pulse-width modulated output
 	M_MAX,
 #define M_MAX M_MAX
 
