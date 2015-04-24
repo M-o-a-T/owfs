@@ -25,8 +25,13 @@ $Id$
 READ_FUNCTION(FS_r_info_raw);
 READ_FUNCTION(FS_r_name);
 READ_FUNCTION(FS_r_console);
+READ_FUNCTION(FS_r_port_raw);
+READ_FUNCTION(FS_r_ports_raw);
+WRITE_FUNCTION(FS_w_console);
+WRITE_FUNCTION(FS_w_port_raw);
 
-static GOOD_OR_BAD OW_r_info_raw(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, const struct parsedname *pn);
+static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, const struct parsedname *pn);
+static GOOD_OR_BAD OW_w_std(BYTE *buf, size_t size,    BYTE type, BYTE stype, const struct parsedname *pn);
 //WRITE_FUNCTION(FS_w_raw);
 //READ_FUNCTION(FS_r_status);
 //WRITE_FUNCTION(FS_w_status);
@@ -45,7 +50,9 @@ static struct filetype MOAT[] = {
 	{"config", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/raw", 255, &infotypes, ft_binary, fc_static, FS_r_info_raw, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/name", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_name, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
-	{"console", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_console, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
+	{"console", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_console, FS_w_console, VISIBLE, NO_FILETYPE_DATA, },
+	{"config/port", 255, &infotypes, ft_binary, fc_static, FS_r_port_raw, FS_w_port_raw, VISIBLE, NO_FILETYPE_DATA, },
+	{"config/ports", 255, NON_AGGREGATE, ft_binary, fc_static, FS_r_ports_raw, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 
 };
 
@@ -57,8 +64,31 @@ static ZERO_OR_ERROR FS_r_info_raw(struct one_wire_query *owq)
 {
     BYTE buf[256];
     size_t len = OWQ_size(owq);
+	if(len>sizeof(buf)) len=sizeof(buf);
 
-	RETURN_ERROR_IF_BAD( OW_r_info_raw(buf,&len, M_CONFIG, OWQ_pn(owq).extension, PN(owq)));
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_CONFIG, OWQ_pn(owq).extension, PN(owq)));
+
+    return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
+}
+
+static ZERO_OR_ERROR FS_r_port_raw(struct one_wire_query *owq)
+{
+    BYTE buf[1];
+    size_t len = OWQ_size(owq);
+	if(len>sizeof(buf)) len=sizeof(buf);
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_PORT, OWQ_pn(owq).extension, PN(owq)));
+
+    return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
+}
+
+static ZERO_OR_ERROR FS_r_ports_raw(struct one_wire_query *owq)
+{
+    BYTE buf[10];
+    size_t len = OWQ_size(owq);
+	if(len>sizeof(buf)) len=sizeof(buf);
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_PORT, 0, PN(owq)));
 
     return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
 }
@@ -68,7 +98,7 @@ static ZERO_OR_ERROR FS_r_name(struct one_wire_query *owq)
     BYTE buf[256];
     size_t len = OWQ_size(owq);
 
-	RETURN_ERROR_IF_BAD( OW_r_info_raw(buf,&len, M_CONFIG, CFG_NAME, PN(owq)));
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_CONFIG, CFG_NAME, PN(owq)));
 
     return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
 }
@@ -78,12 +108,34 @@ static ZERO_OR_ERROR FS_r_console(struct one_wire_query *owq)
     BYTE buf[256];
     size_t len = OWQ_size(owq);
 
-	RETURN_ERROR_IF_BAD( OW_r_info_raw(buf,&len, M_CONSOLE, 1, PN(owq)));
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_CONSOLE, 1, PN(owq)));
 
     return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
 }
 
-static GOOD_OR_BAD OW_r_info_raw(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, const struct parsedname *pn)
+static ZERO_OR_ERROR FS_w_console(struct one_wire_query *owq)
+{
+	if (OWQ_offset(owq) != 0)
+		return -EINVAL; /* ignore? */
+	return GB_to_Z_OR_E( OW_w_std( (BYTE *) OWQ_buffer(owq), OWQ_size(owq), M_CONSOLE,1, PN(owq)) ) ;
+}
+
+static ZERO_OR_ERROR FS_w_port_raw(struct one_wire_query *owq)
+{
+	BYTE *buf = (BYTE *) OWQ_buffer(owq);
+    size_t len = OWQ_size(owq);
+	if (OWQ_offset(owq) != 0)
+		return -EINVAL; /* ignore? */
+
+	// Hack for testing, otherwise we'll not be able to clear a port using owwrite.
+	if(len == 1 && (*buf == '0' || *buf == '1')) {
+		*buf -= '0';
+	}
+
+	return GB_to_Z_OR_E( OW_w_std( buf,len, M_PORT,OWQ_pn(owq).extension, PN(owq)) ) ;
+}
+
+static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, const struct parsedname *pn)
 {
 	BYTE p[3] = { _1W_READ_MOAT, type,stype };
 
@@ -107,7 +159,11 @@ static GOOD_OR_BAD OW_r_info_raw(BYTE *buf, size_t *buflen, BYTE type, BYTE styp
 		goto out_bad;
 	}
 	LEVEL_DEBUG( "read: got len %d",len) ;
-	if (len > maxlen) { /* don't read all and don't bother with CRC */
+	if (len > maxlen) {
+		/* don't read all and don't bother with CRC.
+		 * This will abort the read on the client side so that
+		 * there'll be no side effects like marked-as-sent buffers
+		 * or cleared 'conditional search' flags */
 		struct transaction_log tinfo[] = {
 			TRXN_READ(buf,maxlen),
 			TRXN_END,
@@ -155,6 +211,54 @@ static GOOD_OR_BAD OW_r_info_raw(BYTE *buf, size_t *buflen, BYTE type, BYTE styp
 
 	LEVEL_DEBUG( "read: GOOD, got %d",*buflen) ;
 	return ret;
+out_bad:
+	return gbBAD;
+}
+
+static GOOD_OR_BAD OW_w_std(BYTE *buf, size_t size, BYTE type, BYTE stype, const struct parsedname *pn)
+{
+	BYTE p[4] = { _1W_WRITE_MOAT, type,stype, size};
+	BYTE crcbuf[2];
+	UINT crc;
+
+	struct transaction_log tfirst[] = {
+		TRXN_START,
+		TRXN_WRITE(p,4),
+		TRXN_WRITE(buf,size),
+		TRXN_READ2(crcbuf),
+		TRXN_END,
+	};
+	struct transaction_log xmit_crc[] = {
+		TRXN_WRITE2(crcbuf),
+		TRXN_END,
+	};
+
+	if (size == 0) {
+		return gbGOOD;
+	}
+	if (size > 255) {
+		return gbBAD;
+	}
+
+	LEVEL_DEBUG( "write: %d for %d %d",size,type,stype) ;
+	
+	if ( BAD(BUS_transaction(tfirst, pn))) {
+		goto out_bad;
+	}
+
+	crc = CRC16compute(p,4,0);
+	crc = CRC16compute(buf,size,crc);
+	if ( CRC16seeded (crcbuf,2,crc) ) {
+		LEVEL_DEBUG("CRC error");
+		goto out_bad;
+	}
+	LEVEL_DEBUG( "read CRC: GOOD, got %02x%02x",crcbuf[0],crcbuf[1]) ;
+	crcbuf[0] = ~crcbuf[0];
+	crcbuf[1] = ~crcbuf[1];
+	if ( BAD(BUS_transaction(xmit_crc, pn)) ) {
+		goto out_bad;
+	}
+	return gbGOOD;
 out_bad:
 	return gbBAD;
 }

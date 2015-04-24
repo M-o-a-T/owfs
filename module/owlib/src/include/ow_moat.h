@@ -50,13 +50,14 @@ typedef enum {
 	M_TEMP,   // temperature sensor
 	M_HUMID,  // humidity sensor
 	M_ADC,    // analog input
-	M_PID,    // controller
-	M_PWM,    // pulse-width modulated output
+	M_PID,    // basic parameterizable controller
+	M_PWM,    // pulse-width modulated output (tied to output port)
+	M_COUNT,  // hardware transition counter (tied to input port)
 	M_MAX,
 #define M_MAX M_MAX
 
 	M_INFO = 0x70,
-	M_CONFIG,   // config data
+	M_CONFIG,   // EPROM (or Flash) config data
 	M_ALERT,    // conditional search
 } m_type;
 
@@ -114,7 +115,7 @@ typedef enum {
 #define M_CONSOLE_ALERT 0x04 /* Alert condition when text is available */
 
 /*
-	Data for M_INPUT:
+	Data for M_PORT:
 	For each input, send a byte+extension with feature bits.
 */
 #define M_INPUT_COUNT_LO 0x01 /* does the input count low>high transitions? */
