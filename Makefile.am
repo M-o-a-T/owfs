@@ -24,7 +24,7 @@ preparerpm: dist
 	             ${RPMDIR}/RPMS/i386 \
 	             ${RPMDIR}/SRPMS ; \
 	fi
-	cd src/rpm && ${MAKE} @PACKAGE@.spec
+	${MAKE} -C src/rpm @PACKAGE@.spec
 	@LN_S@ -f `pwd`/src/rpm/@PACKAGE@.spec ${RPMDIR}/SPECS/@PACKAGE@.spec
 
 rpm: preparerpm

@@ -92,10 +92,9 @@ int CRC16(const BYTE * bytes, const size_t length)
 }
 
 /* Returns the new seed */
-int CRC16compute(const BYTE * bytes, const size_t length, const UINT seed)
+UINT CRC16compute(const BYTE * bytes, const size_t length, const UINT seed)
 {
 	UINT sd = seed;
-	int ret;
 	size_t i;
 
 	for (i = 0; i < length; ++i) {
