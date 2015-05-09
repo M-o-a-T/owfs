@@ -18,6 +18,7 @@ $Id$
 
 #include <config.h>
 #include "owfs_config.h"
+#define MOAT_NAMES
 #include "ow_moat.h"
 
 /* ------- Prototypes ----------- */
@@ -26,6 +27,7 @@ $Id$
 
 READ_FUNCTION(FS_r_info_raw);
 READ_FUNCTION(FS_r_name);
+READ_FUNCTION(FS_r_types);
 READ_FUNCTION(FS_r_console);
 READ_FUNCTION(FS_r_raw);
 READ_FUNCTION(FS_r_port);
@@ -62,6 +64,7 @@ static struct filetype MOAT[] = {
 	{"config", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/raw", 255, &infotypes, ft_binary, fc_static, FS_r_info_raw, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/name", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_name, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
+	{"config/types", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_types, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"console", 255, NON_AGGREGATE, ft_vascii, fc_uncached, FS_r_console, FS_w_console, VISIBLE, NO_FILETYPE_DATA, },
 
 	{"raw", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
@@ -202,6 +205,26 @@ static ZERO_OR_ERROR FS_r_name(struct one_wire_query *owq)
     size_t len = OWQ_size(owq);
 
 	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_CONFIG, CFG_NAME, PN(owq)));
+
+    return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
+}
+
+static ZERO_OR_ERROR FS_r_types(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    unsigned char buf[256];
+    size_t len = 0;
+	BYTE b[M_MAX];
+	int i;
+
+	if(BAD(OW_r_features(b, pn)))
+		return -EINVAL;
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_CONFIG, CFG_NAME, pn));
+	for (i=0;i<M_MAX;i++) {
+		if (b[i])
+			len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%s=%d\n", m_names[i],b[i]);
+	}
 
     return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
 }

@@ -61,6 +61,21 @@ typedef enum {
 	M_ALERT,    // conditional search
 } m_type;
 
+#ifdef MOAT_NAMES
+static const char *m_names[] = {
+	"console",
+	"port",
+	"smoke",
+	"temp",
+	"humid",
+	"adc",
+	"pid",
+	"pwm",
+	"count",
+	"_max"
+};
+#endif
+
 typedef enum {
 	CFG_LIST = 0,
 	CFG_EUID,
