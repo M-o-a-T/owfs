@@ -61,13 +61,13 @@ static struct filetype MOAT[] = {
 	{"config", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/raw", 255, &infotypes, ft_binary, fc_static, FS_r_info_raw, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/name", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_name, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
-	{"console", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_console, FS_w_console, VISIBLE, NO_FILETYPE_DATA, },
+	{"console", 255, NON_AGGREGATE, ft_vascii, fc_uncached, FS_r_console, FS_w_console, VISIBLE, NO_FILETYPE_DATA, },
 
 	{"raw", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
-	{"raw/port", 255, &maxports, ft_binary, fc_volatile, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PORT,}, },
-	{"raw/ports", 255, NON_AGGREGATE, ft_binary, fc_volatile, FS_r_raw_zero, NO_WRITE_FUNCTION, VISIBLE, {.u=M_PORT,}, },
-	{"raw/pwm", 255, &maxports, ft_binary, fc_volatile, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PWM,}, },
-	{"raw/pwms", 255, NON_AGGREGATE, ft_binary, fc_volatile, FS_r_raw_zero, NO_WRITE_FUNCTION, VISIBLE, {.u=M_PWM,}, },
+	{"raw/port", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PORT,}, },
+	{"raw/ports", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
+	{"raw/pwm", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PWM,}, },
+	{"raw/pwms", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PWM,}, },
 
 	{"port", PROPERTY_LENGTH_YESNO, &maxports, ft_yesno, fc_volatile, FS_r_port, FS_w_port, FS_show_entry, {.u=M_PORT,}, },
 	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
