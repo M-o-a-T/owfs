@@ -29,6 +29,7 @@ READ_FUNCTION(FS_r_name);
 READ_FUNCTION(FS_r_console);
 READ_FUNCTION(FS_r_raw);
 READ_FUNCTION(FS_r_port);
+READ_FUNCTION(FS_r_port_all);
 READ_FUNCTION(FS_r_raw_zero);
 WRITE_FUNCTION(FS_w_raw);
 WRITE_FUNCTION(FS_w_port);
@@ -61,16 +62,16 @@ static struct filetype MOAT[] = {
 	{"config", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/raw", 255, &infotypes, ft_binary, fc_static, FS_r_info_raw, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/name", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_name, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
-	{"console", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_console, FS_w_console, VISIBLE, NO_FILETYPE_DATA, },
+	{"console", 255, NON_AGGREGATE, ft_vascii, fc_uncached, FS_r_console, FS_w_console, VISIBLE, NO_FILETYPE_DATA, },
 
 	{"raw", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
-	{"raw/port", 255, &maxports, ft_binary, fc_volatile, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PORT,}, },
-	{"raw/ports", 255, NON_AGGREGATE, ft_binary, fc_volatile, FS_r_raw_zero, NO_WRITE_FUNCTION, VISIBLE, {.u=M_PORT,}, },
-	{"raw/pwm", 255, &maxports, ft_binary, fc_volatile, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PWM,}, },
-	{"raw/pwms", 255, NON_AGGREGATE, ft_binary, fc_volatile, FS_r_raw_zero, NO_WRITE_FUNCTION, VISIBLE, {.u=M_PWM,}, },
+	{"raw/port", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PORT,}, },
+	{"raw/ports", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
+	{"raw/pwm", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PWM,}, },
+	{"raw/pwms", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PWM,}, },
 
 	{"port", PROPERTY_LENGTH_YESNO, &maxports, ft_yesno, fc_volatile, FS_r_port, FS_w_port, FS_show_entry, {.u=M_PORT,}, },
-	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
+	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port_all, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
 };
 
 DeviceEntryExtended(F0, MOAT, DEV_alarm, NO_GENERIC_READ, NO_GENERIC_WRITE);
@@ -137,41 +138,49 @@ static ZERO_OR_ERROR FS_r_raw(struct one_wire_query *owq)
     return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
 }
 
+static ZERO_OR_ERROR FS_r_port_all(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+	BYTE b[16],*bp=b;
+	BYTE buf[256];
+	size_t len = 0;
+	size_t lb = sizeof(b);
+	int i;
+	int max_port;
+
+	if(BAD(OW_r_features(buf, pn)))
+		return -EINVAL;
+	max_port = buf[M_PORT];
+
+	RETURN_ERROR_IF_BAD( OW_r_std(b,&lb, M_PORT, 0, pn));
+	while(max_port && lb--) {
+		BYTE m = 1;
+		for(i=0;max_port && i<8;i++) {
+			buf[len++] = (*bp & m) ? '1' : '0';
+			buf[len++] = ',';
+			max_port--;
+			m <<= 1;
+		}
+		bp++;
+	}
+
+	return OWQ_format_output_offset_and_size((const char *)buf, len-1, owq);
+}
+
 static ZERO_OR_ERROR FS_r_port(struct one_wire_query *owq)
 {
 	struct parsedname *pn = PN(owq);
+	BYTE buf[1];
+	size_t len = sizeof(buf);
 
-	if (pn->extension == EXTENSION_ALL) {
-		BYTE b[16],*bp=b;
-		BYTE buf[256];
-		size_t len = 0;
-		size_t lb = sizeof(b);
-		int i;
-
-		RETURN_ERROR_IF_BAD( OW_r_std(b,&lb, M_PORT, 0, pn));
-		while(lb--) {
-			BYTE m = 1;
-			for(i=0;i<8;i++) {
-				buf[len++] = (*bp & m) ? '1' : '0';
-				buf[len++] = ',';
-				m <<= 1;
-			}
-			bp++;
-		}
-
-		return OWQ_format_output_offset_and_size((const char *)buf, len-1, owq);
-	} else if (!pn->extension) 
+	if (!pn->extension) 
 		return -EINVAL;
-	else {
-		BYTE buf[1];
-		size_t len = sizeof(buf);
 	
-		RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_PORT, pn->extension, pn));
-		if (len != 1)
-			return -EINVAL;
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_PORT, pn->extension, pn));
+	if (len != 1)
+		return -EINVAL;
 
-		OWQ_Y(owq) = !!(buf[0]&0x80);
-	}
+	OWQ_Y(owq) = !!(buf[0]&0x80);
     return 0;
 }
 
