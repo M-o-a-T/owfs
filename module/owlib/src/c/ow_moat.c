@@ -22,13 +22,19 @@ $Id$
 
 /* ------- Prototypes ----------- */
 
+#define VISIBLE_FUNCTION(name)  static enum e_visibility name( const struct parsedname * pn );
+
 READ_FUNCTION(FS_r_info_raw);
 READ_FUNCTION(FS_r_name);
 READ_FUNCTION(FS_r_console);
-READ_FUNCTION(FS_r_port_raw);
-READ_FUNCTION(FS_r_ports_raw);
+READ_FUNCTION(FS_r_raw);
+READ_FUNCTION(FS_r_port);
+READ_FUNCTION(FS_r_raw_zero);
+WRITE_FUNCTION(FS_w_raw);
+WRITE_FUNCTION(FS_w_port);
 WRITE_FUNCTION(FS_w_console);
-WRITE_FUNCTION(FS_w_port_raw);
+VISIBLE_FUNCTION(FS_show_entry);
+VISIBLE_FUNCTION(FS_show_s_entry);
 
 static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, const struct parsedname *pn);
 static GOOD_OR_BAD OW_w_std(BYTE *buf, size_t size,    BYTE type, BYTE stype, const struct parsedname *pn);
@@ -44,16 +50,23 @@ static GOOD_OR_BAD OW_w_std(BYTE *buf, size_t size,    BYTE type, BYTE stype, co
 /* ------- Structures ----------- */
 
 static struct aggregate infotypes = { CFG_MAX, ag_numbers, ag_separate, };
+static struct aggregate maxports = { 8, ag_numbers, ag_separate, };
 
 static struct filetype MOAT[] = {
 	F_STANDARD,
 	{"config", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/raw", 255, &infotypes, ft_binary, fc_static, FS_r_info_raw, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/name", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_name, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
-	{"console", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_console, FS_w_console, VISIBLE, NO_FILETYPE_DATA, },
-	{"config/port", 255, &infotypes, ft_binary, fc_static, FS_r_port_raw, FS_w_port_raw, VISIBLE, NO_FILETYPE_DATA, },
-	{"config/ports", 255, NON_AGGREGATE, ft_binary, fc_static, FS_r_ports_raw, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
+	{"console", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_console, FS_w_console, VISIBLE, NO_FILETYPE_DATA, },
 
+	{"raw", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
+	{"raw/port", 255, &maxports, ft_binary, fc_volatile, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PORT,}, },
+	{"raw/ports", 255, NON_AGGREGATE, ft_binary, fc_volatile, FS_r_raw_zero, NO_WRITE_FUNCTION, VISIBLE, {.u=M_PORT,}, },
+	{"raw/pwm", 255, &maxports, ft_binary, fc_volatile, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PWM,}, },
+	{"raw/pwms", 255, NON_AGGREGATE, ft_binary, fc_volatile, FS_r_raw_zero, NO_WRITE_FUNCTION, VISIBLE, {.u=M_PWM,}, },
+
+	{"port", PROPERTY_LENGTH_YESNO, &maxports, ft_yesno, fc_volatile, FS_r_port, FS_w_port, FS_show_entry, {.u=M_PORT,}, },
+	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
 };
 
 DeviceEntryExtended(F0, MOAT, DEV_alarm, NO_GENERIC_READ, NO_GENERIC_WRITE);
@@ -71,24 +84,85 @@ static ZERO_OR_ERROR FS_r_info_raw(struct one_wire_query *owq)
     return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
 }
 
-static ZERO_OR_ERROR FS_r_port_raw(struct one_wire_query *owq)
+static enum e_visibility FS_show_entry( const struct parsedname * pn )
 {
-    BYTE buf[1];
+	if (pn->extension == EXTENSION_ALL)
+		return visible_never;
+	if (!pn->extension)
+		return visible_never;
+	/* TODO */
+	return visible_always;
+}
+
+static enum e_visibility FS_show_s_entry( const struct parsedname * pn )
+{
+	/* TODO */
+	return visible_always;
+}
+
+static ZERO_OR_ERROR FS_r_raw(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    BYTE buf[256];
     size_t len = OWQ_size(owq);
 	if(len>sizeof(buf)) len=sizeof(buf);
 
-	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_PORT, OWQ_pn(owq).extension, PN(owq)));
+	if (pn->extension == EXTENSION_ALL)
+		RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, pn->selected_filetype->data.u, 0, pn));
+	else if(!pn->extension)
+		return -EINVAL;
+	else
+		RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, pn->selected_filetype->data.u, OWQ_pn(owq).extension, pn));
 
     return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
 }
 
-static ZERO_OR_ERROR FS_r_ports_raw(struct one_wire_query *owq)
+static ZERO_OR_ERROR FS_r_port(struct one_wire_query *owq)
 {
-    BYTE buf[10];
+	struct parsedname *pn = PN(owq);
+
+	if (pn->extension == EXTENSION_ALL) {
+		BYTE b[16],*bp=b;
+		BYTE buf[256];
+		size_t len = 0;
+		size_t lb = sizeof(b);
+		int i;
+
+		RETURN_ERROR_IF_BAD( OW_r_std(b,&lb, M_PORT, 0, pn));
+		while(lb--) {
+			BYTE m = 1;
+			for(i=0;i<8;i++) {
+				buf[len++] = (*bp & m) ? '1' : '0';
+				buf[len++] = ',';
+				m <<= 1;
+			}
+			bp++;
+		}
+
+		return OWQ_format_output_offset_and_size((const char *)buf, len-1, owq);
+	} else if (!pn->extension) 
+		return -EINVAL;
+	else {
+		BYTE buf[1];
+		size_t len = sizeof(buf);
+	
+		RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_PORT, pn->extension, pn));
+		if (len != 1)
+			return -EINVAL;
+
+		OWQ_Y(owq) = !!(buf[0]&0x80);
+	}
+    return 0;
+}
+
+static ZERO_OR_ERROR FS_r_raw_zero(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    BYTE buf[256];
     size_t len = OWQ_size(owq);
 	if(len>sizeof(buf)) len=sizeof(buf);
 
-	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_PORT, 0, PN(owq)));
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, pn->selected_filetype->data.u, 0, pn));
 
     return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
 }
@@ -120,19 +194,27 @@ static ZERO_OR_ERROR FS_w_console(struct one_wire_query *owq)
 	return GB_to_Z_OR_E( OW_w_std( (BYTE *) OWQ_buffer(owq), OWQ_size(owq), M_CONSOLE,1, PN(owq)) ) ;
 }
 
-static ZERO_OR_ERROR FS_w_port_raw(struct one_wire_query *owq)
+static ZERO_OR_ERROR FS_w_raw(struct one_wire_query *owq)
 {
+	struct parsedname *pn = PN(owq);
 	BYTE *buf = (BYTE *) OWQ_buffer(owq);
     size_t len = OWQ_size(owq);
 	if (OWQ_offset(owq) != 0)
 		return -EINVAL; /* ignore? */
 
-	// Hack for testing, otherwise we'll not be able to clear a port using owwrite.
-	if(len == 1 && (*buf == '0' || *buf == '1')) {
-		*buf -= '0';
-	}
+	if (pn->extension == EXTENSION_ALL || !pn->extension)
+		return -EINVAL;
 
-	return GB_to_Z_OR_E( OW_w_std( buf,len, M_PORT,OWQ_pn(owq).extension, PN(owq)) ) ;
+	return GB_to_Z_OR_E( OW_w_std( buf,len, pn->selected_filetype->data.u, pn->extension, pn) ) ;
+}
+
+static ZERO_OR_ERROR FS_w_port(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+	BYTE buf[] = { OWQ_Y(owq) };
+    size_t len = sizeof(buf);
+
+	return GB_to_Z_OR_E( OW_w_std( buf,len, pn->selected_filetype->data.u, OWQ_pn(owq).extension, pn) ) ;
 }
 
 static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, const struct parsedname *pn)
