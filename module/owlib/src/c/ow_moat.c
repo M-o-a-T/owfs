@@ -47,6 +47,10 @@ static GOOD_OR_BAD OW_w_std(BYTE *buf, size_t size,    BYTE type, BYTE stype, co
 #define _1W_READ_MOAT          0xF2
 #define _1W_WRITE_MOAT         0xF4
 
+/* Internal properties */
+Make_SlaveSpecificTag(FEATURES, fc_stable);  // feature map: array of M_MAX BYTEs
+static GOOD_OR_BAD OW_r_features(BYTE *buf, const struct parsedname *pn);
+
 /* ------- Structures ----------- */
 
 static struct aggregate infotypes = { CFG_MAX, ag_numbers, ag_separate, };
@@ -86,18 +90,34 @@ static ZERO_OR_ERROR FS_r_info_raw(struct one_wire_query *owq)
 
 static enum e_visibility FS_show_entry( const struct parsedname * pn )
 {
+	BYTE buf[M_MAX];
 	if (pn->extension == EXTENSION_ALL)
 		return visible_never;
 	if (!pn->extension)
 		return visible_never;
-	/* TODO */
-	return visible_always;
+	if (pn->selected_filetype->data.u >= M_MAX)
+		return visible_never;
+
+	if(BAD(OW_r_features(buf, pn)))
+		return visible_not_now;
+	if (pn->extension > buf[pn->selected_filetype->data.u])
+		return visible_not_now;
+
+	return visible_now;
 }
 
 static enum e_visibility FS_show_s_entry( const struct parsedname * pn )
 {
-	/* TODO */
-	return visible_always;
+	BYTE buf[M_MAX];
+	if (pn->selected_filetype->data.u >= M_MAX)
+		return visible_never;
+
+	if(BAD(OW_r_features(buf, pn)))
+		return visible_not_now;
+	if (!buf[pn->selected_filetype->data.u])
+		return visible_not_now;
+
+	return visible_now;
 }
 
 static ZERO_OR_ERROR FS_r_raw(struct one_wire_query *owq)
@@ -343,6 +363,42 @@ static GOOD_OR_BAD OW_w_std(BYTE *buf, size_t size, BYTE type, BYTE stype, const
 	return gbGOOD;
 out_bad:
 	return gbBAD;
+}
+
+/**
+ * This returns a cached copy of the "how many M_xxx does this device
+ * have" array.
+ */
+static GOOD_OR_BAD OW_r_features(BYTE *buf, const struct parsedname *pn)
+{
+	if ( BAD( Cache_Get_SlaveSpecific(buf, sizeof(BYTE)*M_MAX, SlaveSpecificTag(FEATURES), pn))) {
+		BYTE ib[20], *ibp = ib;
+		size_t ibl = sizeof(ib);
+		int i;
+		BYTE m = 0, flg = 0;
+
+		/* Wire format: a byte-long bitmap lists whether there's an entry
+		 * for the corresponding mode. If so, the next byte counts them,
+		 * otherwise the byte gets skipped. */
+		RETURN_BAD_IF_BAD( OW_r_std(ib, &ibl, M_CONFIG, CFG_TYPE, pn) );
+		for(i=0;i < M_MAX; i++) {
+			if (ibp >= ib+ibl) { // we're past the end
+				buf[i] = 0;
+				continue;
+			}
+			m <<= 1;
+			if(!m) {
+				m = 1;
+				flg = *ibp++;
+			}
+			if(flg & m)
+				buf[i] = *ibp++;
+			else
+				buf[i] = 0;
+		}
+		Cache_Add_SlaveSpecific(buf, sizeof(BYTE)*M_MAX, SlaveSpecificTag(FEATURES), pn);
+	}
+	return gbGOOD;
 }
 
 #if 0
