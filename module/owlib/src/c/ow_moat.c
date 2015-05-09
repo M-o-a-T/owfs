@@ -55,7 +55,7 @@ static GOOD_OR_BAD OW_r_features(BYTE *buf, const struct parsedname *pn);
 /* ------- Structures ----------- */
 
 static struct aggregate infotypes = { CFG_MAX, ag_numbers, ag_separate, };
-static struct aggregate maxports = { 8, ag_numbers, ag_separate, };
+static struct aggregate maxports = { 8, ag_numbers, ag_mixed, };
 
 static struct filetype MOAT[] = {
 	F_STANDARD,
@@ -66,12 +66,9 @@ static struct filetype MOAT[] = {
 
 	{"raw", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"raw/port", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PORT,}, },
-	{"raw/ports", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
 	{"raw/pwm", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PWM,}, },
-	{"raw/pwms", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PWM,}, },
 
 	{"port", PROPERTY_LENGTH_YESNO, &maxports, ft_yesno, fc_volatile, FS_r_port, FS_w_port, FS_show_entry, {.u=M_PORT,}, },
-	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port_all, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
 };
 
 DeviceEntryExtended(F0, MOAT, DEV_alarm, NO_GENERIC_READ, NO_GENERIC_WRITE);
@@ -92,8 +89,6 @@ static ZERO_OR_ERROR FS_r_info_raw(struct one_wire_query *owq)
 static enum e_visibility FS_show_entry( const struct parsedname * pn )
 {
 	BYTE buf[M_MAX];
-	if (pn->extension == EXTENSION_ALL)
-		return visible_never;
 	if (!pn->extension)
 		return visible_never;
 	if (pn->selected_filetype->data.u >= M_MAX)
@@ -101,6 +96,12 @@ static enum e_visibility FS_show_entry( const struct parsedname * pn )
 
 	if(BAD(OW_r_features(buf, pn)))
 		return visible_not_now;
+
+	/* Do we have any of these at all? */
+	if (pn->extension == EXTENSION_ALL)
+		return buf[pn->selected_filetype->data.u] ? visible_now : visible_not_now;
+
+	/* Are we above the last port? */
 	if (pn->extension > buf[pn->selected_filetype->data.u])
 		return visible_not_now;
 
@@ -138,6 +139,7 @@ static ZERO_OR_ERROR FS_r_raw(struct one_wire_query *owq)
     return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
 }
 
+// Format: 0,1,…,0 beginning with port 1
 static ZERO_OR_ERROR FS_r_port_all(struct one_wire_query *owq)
 {
 	struct parsedname *pn = PN(owq);
@@ -173,6 +175,8 @@ static ZERO_OR_ERROR FS_r_port(struct one_wire_query *owq)
 	BYTE buf[1];
 	size_t len = sizeof(buf);
 
+	if (pn->extension == EXTENSION_ALL) 
+		return FS_r_port_all(owq);
 	if (!pn->extension) 
 		return -EINVAL;
 	
