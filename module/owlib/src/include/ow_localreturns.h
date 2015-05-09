@@ -35,11 +35,11 @@ typedef enum { gbGOOD, gbBAD, gbOTHER, } GOOD_OR_BAD  ; // OTHER breaks the enca
 
 #define GOOD(x)	((x)==gbGOOD)
 #define BAD(x)	((x)!=gbGOOD)
-#define GB_to_Z_OR_E(x)	GOOD(x)?0:-EINVAL
+#define GB_to_Z_OR_E(x)	(GOOD(x)?0:-EINVAL)
 
-#define RETURN_BAD_IF_BAD(x)	if ( BAD(x) ) { return gbBAD; }
-#define RETURN_GOOD_IF_GOOD(x)	if (GOOD(x) ) { return gbGOOD; }
-#define RETURN_ERROR_IF_BAD(x)	if ( BAD(x) ) { return -EINVAL; }
+#define RETURN_BAD_IF_BAD(x)	do { if ( BAD(x) ) { return gbBAD; } } while(0)
+#define RETURN_GOOD_IF_GOOD(x)	do { if (GOOD(x) ) { return gbGOOD; } } while(0)
+#define RETURN_ERROR_IF_BAD(x)	do { if ( BAD(x) ) { return -EINVAL; } } while(0)
 
 /* Use this every place we call a void * function (unless the return value is really used). */
 #define VOID_RETURN NULL
