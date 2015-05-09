@@ -55,7 +55,7 @@ static GOOD_OR_BAD OW_r_features(BYTE *buf, const struct parsedname *pn);
 /* ------- Structures ----------- */
 
 static struct aggregate infotypes = { CFG_MAX, ag_numbers, ag_separate, };
-static struct aggregate maxports = { 8, ag_numbers, ag_separate, };
+static struct aggregate maxports = { 32, ag_numbers, ag_separate, };
 
 static struct filetype MOAT[] = {
 	F_STANDARD,
