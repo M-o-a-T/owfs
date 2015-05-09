@@ -18,6 +18,7 @@ $Id$
 
 #include <config.h>
 #include "owfs_config.h"
+#define MOAT_NAMES
 #include "ow_moat.h"
 
 /* ------- Prototypes ----------- */
@@ -26,6 +27,7 @@ $Id$
 
 READ_FUNCTION(FS_r_info_raw);
 READ_FUNCTION(FS_r_name);
+READ_FUNCTION(FS_r_types);
 READ_FUNCTION(FS_r_console);
 READ_FUNCTION(FS_r_raw);
 READ_FUNCTION(FS_r_port);
@@ -55,20 +57,32 @@ static GOOD_OR_BAD OW_r_features(BYTE *buf, const struct parsedname *pn);
 /* ------- Structures ----------- */
 
 static struct aggregate infotypes = { CFG_MAX, ag_numbers, ag_separate, };
-static struct aggregate maxports = { 8, ag_numbers, ag_separate, };
+static struct aggregate maxports = { 32, ag_numbers, ag_separate, };
 
 static struct filetype MOAT[] = {
 	F_STANDARD,
 	{"config", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/raw", 255, &infotypes, ft_binary, fc_static, FS_r_info_raw, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"config/name", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_name, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
+	{"config/types", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_types, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"console", 255, NON_AGGREGATE, ft_vascii, fc_uncached, FS_r_console, FS_w_console, VISIBLE, NO_FILETYPE_DATA, },
 
 	{"raw", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"raw/port", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PORT,}, },
 	{"raw/ports", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
+	{"raw/smoke", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_SMOKE,}, },
+	{"raw/temp", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_TEMP,}, },
+	{"raw/temps", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_TEMP,}, },
+	{"raw/humid", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_HUMID,}, },
+	{"raw/humids", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_HUMID,}, },
+	{"raw/adc", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_ADC,}, },
+	{"raw/adcs", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_ADC,}, },
+	{"raw/pid", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PID,}, },
+	// not planned to have more than one
 	{"raw/pwm", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PWM,}, },
 	{"raw/pwms", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PWM,}, },
+	{"raw/count", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_COUNT,}, },
+	{"raw/counts", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_COUNT,}, },
 
 	{"port", PROPERTY_LENGTH_YESNO, &maxports, ft_yesno, fc_volatile, FS_r_port, FS_w_port, FS_show_entry, {.u=M_PORT,}, },
 	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port_all, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
@@ -202,6 +216,26 @@ static ZERO_OR_ERROR FS_r_name(struct one_wire_query *owq)
     size_t len = OWQ_size(owq);
 
 	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_CONFIG, CFG_NAME, PN(owq)));
+
+    return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
+}
+
+static ZERO_OR_ERROR FS_r_types(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    unsigned char buf[256];
+    size_t len = 0;
+	BYTE b[M_MAX];
+	int i;
+
+	if(BAD(OW_r_features(b, pn)))
+		return -EINVAL;
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_CONFIG, CFG_NAME, pn));
+	for (i=0;i<M_MAX;i++) {
+		if (b[i])
+			len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%s=%d\n", m_names[i],b[i]);
+	}
 
     return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
 }
