@@ -26,64 +26,61 @@ DeviceHeader(MOAT);
 #define _1W_READ_GENERIC          0xF2
 #define _1W_WRITE_GENERIC         0xF4
 /*
-    All normal channels follow this scheme:
+    All data follow this scheme:
 
 	write 1byte: data type
-	write 1byte: channel no. -- if zero, concatenate all of them (reading only)
+	write 1byte: channel no. -- if zero, concat data / availability mask / whatever
 	read/write arbitrary data, as defined by data type
 	read/write ~CRC16
 	write/read ack: CRC16
 */
 
-/*
-    for M_NAME: channel no is zero
-	read 1byte: length
-	read data
-*/
-
 /* --- Data Types --- */
 
 typedef enum {
-	M_CONSOLE = 0,
+	M_CONFIG, // configuration data
+	M_ALERT,  // conditional search
+	M_STATS,  // some device statistics (broken comms, CRC errors ...)
+	M_CONSOLE,// debugging, commands, whatever
 	M_PORT,   // binary input/output
-	M_SMOKE,  // smoke detector
-	M_TEMP,   // temperature sensor
-	M_HUMID,  // humidity sensor
-	M_ADC,    // analog input
-	M_PID,    // basic parameterizable controller
 	M_PWM,    // pulse-width modulated output (tied to output port)
 	M_COUNT,  // hardware transition counter (tied to input port)
+	M_ADC,    // analog input
+	M_TEMP,   // temperature sensor
+	M_HUMID,  // humidity sensor
+	M_PID,    // basic parameterizable controller
+	M_SMOKE,  // smoke detector
 	M_MAX,
 #define M_MAX M_MAX
-
-	M_INFO = 0x70,
-	M_CONFIG,   // EPROM (or Flash) config data
-	M_ALERT,    // conditional search
 } m_type;
 
 #ifdef MOAT_NAMES
 static const char *m_names[] = {
+	"config",
+	"alert",
+	"stats",
 	"console",
 	"port",
-	"smoke",
-	"temp",
-	"humid",
-	"adc",
-	"pid",
 	"pwm",
 	"count",
+	"adc",
+	"temp",
+	"humid",
+	"pid",
+	"smoke",
 	"_max"
 };
 #endif
 
 typedef enum {
-	CFG_LIST = 0,
-	CFG_EUID,
-	CFG_RF12,
-	CFG_CRYPTO,
-	CFG_OWID,
-	CFG_TYPE,
-	CFG_NAME,
+	CFG_LIST = 0, // list of known CFG_* entries (bitmap)
+	CFG_NUMS,     // list of available M_* subdevices (M_MAX bytes)
+	CFG_EUID,     // reserved for radio
+	CFG_RF12,     // reserved for radio
+	CFG_CRYPTO,   // reserved
+	CFG_OWID,     // this device's 1wire ID
+	CFG_TYPE,     // kkkk
+	CFG_NAME,     // device name
 	CFG_MAX,
 #define CFG_MAX CFG_MAX
 } cfg_type;
