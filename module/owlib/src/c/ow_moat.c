@@ -39,6 +39,8 @@ WRITE_FUNCTION(FS_w_raw);
 WRITE_FUNCTION(FS_w_port);
 WRITE_FUNCTION(FS_w_pwm);
 WRITE_FUNCTION(FS_w_console);
+VISIBLE_FUNCTION(FS_show_config);
+VISIBLE_FUNCTION(FS_show_one_config);
 VISIBLE_FUNCTION(FS_show_entry);
 VISIBLE_FUNCTION(FS_show_s_entry);
 
@@ -55,7 +57,9 @@ static GOOD_OR_BAD OW_w_std(BYTE *buf, size_t size,    BYTE type, BYTE stype, co
 
 /* Internal properties */
 Make_SlaveSpecificTag(FEATURES, fc_stable);  // feature map: array of M_MAX BYTEs
+Make_SlaveSpecificTag(CONFIGS, fc_stable);  // config list: array of CFG_MAX BYTEs
 static GOOD_OR_BAD OW_r_features(BYTE *buf, const struct parsedname *pn);
+static GOOD_OR_BAD OW_r_configs(BYTE *buf, const struct parsedname *pn);
 
 /* ------- Structures ----------- */
 
@@ -65,12 +69,19 @@ static struct aggregate maxports = { 32, ag_numbers, ag_separate, };
 static struct filetype MOAT[] = {
 	F_STANDARD,
 	{"config", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
-	{"config/raw", 255, &infotypes, ft_binary, fc_static, FS_r_info_raw, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
-	{"config/name", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_name, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
-	{"config/types", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_types, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
+	{"config/name", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_name, NO_WRITE_FUNCTION, FS_show_one_config, {.u=CFG_NAME,}, },
+	{"config/types", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_types, NO_WRITE_FUNCTION, FS_show_one_config, {.u=CFG_NUMS,}, },
 	{"console", 255, NON_AGGREGATE, ft_vascii, fc_uncached, FS_r_console, FS_w_console, VISIBLE, NO_FILETYPE_DATA, },
 
+	{"port", PROPERTY_LENGTH_YESNO, &maxports, ft_yesno, fc_volatile, FS_r_port, FS_w_port, FS_show_entry, {.u=M_PORT,}, },
+	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port_all, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
+	{"pwm", 20, &maxports, ft_binary, fc_stable, FS_r_pwm, FS_w_pwm, FS_show_entry, {.u=M_PWM,}, },
+	{"count", PROPERTY_LENGTH_UNSIGNED, &maxports, ft_unsigned, fc_volatile, FS_r_count, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_COUNT,}, },
+
 	{"raw", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
+	{"raw/config", 255, &infotypes, ft_binary, fc_static, FS_r_raw, NO_WRITE_FUNCTION, FS_show_config, {.u=M_CONFIG,}, },
+	{"raw/alarm", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_ALERT,}, },
+	{"raw/alarms", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_ALERT,}, },
 	{"raw/port", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PORT,}, },
 	{"raw/ports", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
 	{"raw/smoke", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_SMOKE,}, },
@@ -81,16 +92,15 @@ static struct filetype MOAT[] = {
 	{"raw/adc", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_ADC,}, },
 	{"raw/adcs", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_ADC,}, },
 	{"raw/pid", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PID,}, },
-	// not planned to have more than one
 	{"raw/pwm", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PWM,}, },
 	{"raw/pwms", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PWM,}, },
 	{"raw/count", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_COUNT,}, },
 	{"raw/counts", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_COUNT,}, },
+	{"raw/smoke", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_SMOKE,}, },
+	{"raw/smokes", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_SMOKE,}, },
+	{"raw/pid", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PID,}, },
+	{"raw/pids", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PID,}, },
 
-	{"port", PROPERTY_LENGTH_YESNO, &maxports, ft_yesno, fc_volatile, FS_r_port, FS_w_port, FS_show_entry, {.u=M_PORT,}, },
-	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port_all, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
-	{"pwm", 20, &maxports, ft_binary, fc_stable, FS_r_pwm, FS_w_pwm, FS_show_entry, {.u=M_PWM,}, },
-	{"count", PROPERTY_LENGTH_UNSIGNED, &maxports, ft_unsigned, fc_volatile, FS_r_count, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_COUNT,}, },
 };
 
 DeviceEntryExtended(F0, MOAT, DEV_alarm, NO_GENERIC_READ, NO_GENERIC_WRITE);
@@ -124,6 +134,36 @@ static enum e_visibility FS_show_entry( const struct parsedname * pn )
 		return visible_not_now;
 
 	return visible_now;
+}
+
+static enum e_visibility FS_show_config( const struct parsedname * pn )
+{
+	BYTE buf[(CFG_MAX+7)/8];
+	if (pn->extension == EXTENSION_ALL)
+		return visible_never;
+	if (pn->extension >= CFG_MAX)
+		return visible_never;
+
+	if(BAD(OW_r_configs(buf, pn)))
+		return visible_not_now;
+	if (buf[pn->extension >> 3] & (1<<(pn->extension & 7)))
+		return visible_now;
+
+	return visible_not_now;
+}
+
+static enum e_visibility FS_show_one_config( const struct parsedname * pn )
+{
+	BYTE buf[(CFG_MAX+7)/8];
+	if (pn->selected_filetype->data.u >= CFG_MAX)
+		return visible_never;
+
+	if(BAD(OW_r_configs(buf, pn)))
+		return visible_not_now;
+	if (buf[pn->selected_filetype->data.u >> 3] & (1<<(pn->selected_filetype->data.u & 7)))
+		return visible_now;
+
+	return visible_not_now;
 }
 
 static enum e_visibility FS_show_s_entry( const struct parsedname * pn )
@@ -268,7 +308,8 @@ static ZERO_OR_ERROR FS_r_types(struct one_wire_query *owq)
 	if(BAD(OW_r_features(b, pn)))
 		return -EINVAL;
 
-	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_CONFIG, CFG_NAME, pn));
+	RETURN_ERROR_IF_BAD(OW_r_features(b, pn));
+
 	for (i=0;i<M_MAX;i++) {
 		if (b[i])
 			len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%s=%d\n", m_names[i],b[i]);
@@ -358,6 +399,7 @@ static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, co
 
     size_t maxlen = *buflen;
     BYTE len;
+	BYTE ovbuf[254];
 	GOOD_OR_BAD ret = gbGOOD;
 
 	struct transaction_log tfirst[] = {
@@ -366,9 +408,6 @@ static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, co
 		TRXN_READ1(&len),
 		TRXN_END,
 	};
-	if (maxlen == 0) {
-		return gbGOOD;
-	}
 
 	LEVEL_DEBUG( "read: read len for %d %d",type,stype) ;
 	/* 0xFF means the device was too slow */
@@ -376,20 +415,7 @@ static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, co
 		goto out_bad;
 	}
 	LEVEL_DEBUG( "read: got len %d",len) ;
-	if (len > maxlen) {
-		/* don't read all and don't bother with CRC.
-		 * This will abort the read on the client side so that
-		 * there'll be no side effects like marked-as-sent buffers
-		 * or cleared 'conditional search' flags */
-		struct transaction_log tinfo[] = {
-			TRXN_READ(buf,maxlen),
-			TRXN_END,
-		};
-
-		if ( BAD(BUS_transaction(tinfo, pn)) ) {
-			goto out_bad;
-		}
-	} else {
+	{
 		UINT crc;
 		BYTE crcbuf[2];
 		struct transaction_log recv_buf[] = {
@@ -397,7 +423,18 @@ static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, co
 			TRXN_READ2(crcbuf),
 			TRXN_END,
 		};
+		struct transaction_log recv_buf_sup[] = {
+			TRXN_READ(buf,maxlen),
+			TRXN_READ(ovbuf,len-maxlen),
+			TRXN_READ2(crcbuf),
+			TRXN_END,
+		};
 		struct transaction_log recv_crc[] = {
+			TRXN_READ2(crcbuf),
+			TRXN_END,
+		};
+		struct transaction_log recv_crc_sup[] = {
+			TRXN_READ(ovbuf,len),
 			TRXN_READ2(crcbuf),
 			TRXN_END,
 		};
@@ -406,13 +443,25 @@ static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, co
 			TRXN_END,
 		};
 
-		if ( BAD(BUS_transaction(len ? recv_buf : recv_crc, pn)) ) {
+		// if len=0, i.e. the remote sends no data at all, then just read the CRC.
+		// Else if len<=max, all OK, read all into buffer.
+		// Else if we want no data, read all into 
+		if ( BAD(BUS_transaction(len ? (len>maxlen) ? maxlen ? recv_buf_sup : recv_crc_sup : recv_buf : recv_crc, pn)) ) {
 			goto out_bad;
 		}
 
 		crc = CRC16compute(p,3,0);
 		crc = CRC16compute(&len,1,crc);
-		if (len) crc = CRC16compute(buf,len,crc);
+		if (!len) {
+			// no data
+		} else if (len<=maxlen) {
+			crc = CRC16compute(buf,len,crc);
+		} else if (maxlen) {
+			crc = CRC16compute(buf,maxlen,crc);
+			crc = CRC16compute(ovbuf,len-maxlen,crc);
+		} else {
+			crc = CRC16compute(ovbuf,len,crc);
+		}
 		LEVEL_DEBUG( "read CRC: GOOD, got %02x%02x",crcbuf[0],crcbuf[1]) ;
 		if ( CRC16seeded (crcbuf,2,crc) ) {
 			LEVEL_DEBUG("CRC error");
@@ -486,32 +535,31 @@ out_bad:
  */
 static GOOD_OR_BAD OW_r_features(BYTE *buf, const struct parsedname *pn)
 {
-	if ( BAD( Cache_Get_SlaveSpecific(buf, sizeof(BYTE)*M_MAX, SlaveSpecificTag(FEATURES), pn))) {
-		BYTE ib[20], *ibp = ib;
-		size_t ibl = sizeof(ib);
-		int i;
-		BYTE m = 0, flg = 0;
+	if ( BAD( Cache_Get_SlaveSpecific(buf, M_MAX, SlaveSpecificTag(FEATURES), pn))) {
+		size_t buflen = M_MAX;
 
-		/* Wire format: a byte-long bitmap lists whether there's an entry
-		 * for the corresponding mode. If so, the next byte counts them,
-		 * otherwise the byte gets skipped. */
-		RETURN_BAD_IF_BAD( OW_r_std(ib, &ibl, M_CONFIG, CFG_TYPE, pn) );
-		for(i=0;i < M_MAX; i++) {
-			if (ibp >= ib+ibl) { // we're past the end
-				buf[i] = 0;
-				continue;
-			}
-			m <<= 1;
-			if(!m) {
-				m = 1;
-				flg = *ibp++;
-			}
-			if(flg & m)
-				buf[i] = *ibp++;
-			else
-				buf[i] = 0;
-		}
-		Cache_Add_SlaveSpecific(buf, sizeof(BYTE)*M_MAX, SlaveSpecificTag(FEATURES), pn);
+		/* Wire format: byte array. */
+		RETURN_BAD_IF_BAD( OW_r_std(buf, &buflen, M_CONFIG, CFG_NUMS, pn) );
+		if (buflen < M_MAX) // older/smaller device?
+			memset(buf+buflen,0,M_MAX-buflen);
+
+		Cache_Add_SlaveSpecific(buf, M_MAX, SlaveSpecificTag(FEATURES), pn);
+	}
+	return gbGOOD;
+}
+
+/**
+ * This returns a cached copy of the "which CFG_* entries does this device
+ * have" bitmap.
+ */
+static GOOD_OR_BAD OW_r_configs(BYTE *buf, const struct parsedname *pn)
+{
+	if ( BAD( Cache_Get_SlaveSpecific(buf, (CFG_MAX+7)/8, SlaveSpecificTag(CONFIGS), pn))) {
+		size_t buflen = (CFG_MAX+7)/8;
+		memset(buf,0,buflen); // in case the remote's list is shorter
+
+		RETURN_BAD_IF_BAD( OW_r_std(buf, &buflen, M_CONFIG, CFG_LIST, pn) );
+		Cache_Add_SlaveSpecific(buf, (CFG_MAX+7)/8, SlaveSpecificTag(CONFIGS), pn);
 	}
 	return gbGOOD;
 }
