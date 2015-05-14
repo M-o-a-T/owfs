@@ -366,8 +366,6 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  OWQ_parse_output@Base 2.8p4
  OWServer_Enet_detect@Base 2.8p4
  OWServer_Enet_setup@Base 2.9p0
- OW_Avahi_Announce@Base 2.8p4
- OW_Avahi_Browse@Base 2.8p4
  OW_Browse@Base 2.8p4
 #MISSING: 3.0p0-1# OW_Free_avahi_library@Base 2.8p4
  OW_Free_dnssd_library@Base 2.8p4
@@ -478,7 +476,6 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  cond_timedwait_failed@Base 2.8p4
  cond_wait_failed@Base 2.8p4
  d_BAE@Base 2.8p4
- d_DEV_MOAT@Base 3.0p0
  d_DS1420@Base 2.8p4
  d_DS1425@Base 2.8p4
  d_DS1821@Base 2.8p4
@@ -537,6 +534,7 @@ libow-3.0.so.0 libow-3.0-0 #MINVER#
  d_HobbyBoards_EE@Base 2.8p4
  d_HobbyBoards_EF@Base 2.8p4
  d_LCD@Base 2.8p4
+ d_MOAT@Base 3.0p0
  d_interface_settings@Base 2.8p4
  d_interface_statistics@Base 2.8p4
  d_mAM001@Base 2.9p0
