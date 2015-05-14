@@ -421,7 +421,7 @@ static GOOD_OR_BAD OW_Hinit(struct parsedname * pn)
 	BYTE data[6];
 
 	// already done?
-	RETURN_GOOD_IF_GOOD( Cache_Get_SlaveSpecific(&init, sizeof(init), SlaveSpecificTag(INI), pn) )
+	RETURN_GOOD_IF_GOOD( Cache_Get_SlaveSpecific(&init, sizeof(init), SlaveSpecificTag(INI), pn) );
 	
 	if ( BAD( OW_w_control(0x04, pn) )	// strobe
 		|| BAD( OW_r_reg(data, pn) ) ) {
