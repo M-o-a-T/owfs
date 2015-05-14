@@ -33,11 +33,13 @@ READ_FUNCTION(FS_r_raw);
 READ_FUNCTION(FS_r_port);
 READ_FUNCTION(FS_r_port_all);
 READ_FUNCTION(FS_r_pwm);
+READ_FUNCTION(FS_r_adc);
 READ_FUNCTION(FS_r_count);
 READ_FUNCTION(FS_r_raw_zero);
 WRITE_FUNCTION(FS_w_raw);
 WRITE_FUNCTION(FS_w_port);
 WRITE_FUNCTION(FS_w_pwm);
+WRITE_FUNCTION(FS_w_adc);
 WRITE_FUNCTION(FS_w_console);
 VISIBLE_FUNCTION(FS_show_config);
 VISIBLE_FUNCTION(FS_show_one_config);
@@ -76,6 +78,7 @@ static struct filetype MOAT[] = {
 	{"port", PROPERTY_LENGTH_YESNO, &maxports, ft_yesno, fc_volatile, FS_r_port, FS_w_port, FS_show_entry, {.u=M_PORT,}, },
 	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port_all, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
 	{"pwm", 20, &maxports, ft_binary, fc_stable, FS_r_pwm, FS_w_pwm, FS_show_entry, {.u=M_PWM,}, },
+	{"adc", 20, &maxports, ft_binary, fc_stable, FS_r_adc, FS_w_adc, FS_show_entry, {.u=M_ADC,}, },
 	{"count", PROPERTY_LENGTH_UNSIGNED, &maxports, ft_unsigned, fc_volatile, FS_r_count, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_COUNT,}, },
 
 	{"raw", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
@@ -281,6 +284,22 @@ static ZERO_OR_ERROR FS_r_pwm(struct one_wire_query *owq)
     return OWQ_format_output_offset_and_size(obuf, olen, owq);
 }
 
+static ZERO_OR_ERROR FS_r_adc(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    BYTE buf[7];
+    size_t len = sizeof(buf);
+    char obuf[30];
+    size_t olen;
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, pn->selected_filetype->data.u, pn->extension, pn));
+	if (len != sizeof(buf))
+		return -EINVAL;
+
+	olen = snprintf(obuf,sizeof(obuf), "%d, %d,%d", buf[1]<<8|buf[2], buf[3]<<8|buf[4], buf[5]<<8|buf[6]);
+    return OWQ_format_output_offset_and_size(obuf, olen, owq);
+}
+
 static ZERO_OR_ERROR FS_r_count(struct one_wire_query *owq)
 {
 	struct parsedname *pn = PN(owq);
@@ -390,6 +409,41 @@ static ZERO_OR_ERROR FS_w_pwm(struct one_wire_query *owq)
 	buf[1] = t_on;
 	buf[2] = t_off>>8;
 	buf[3] = t_off;
+	return GB_to_Z_OR_E( OW_w_std( buf,len, pn->selected_filetype->data.u, pn->extension, pn) ) ;
+}
+
+static ZERO_OR_ERROR FS_w_adc(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+	BYTE buf[4];
+    size_t len = sizeof(buf);
+	unsigned long lower,upper;
+
+	char *ib = alloca(OWQ_size(owq)+1);
+	char *ib2;
+
+	strncpy(ib,OWQ_buffer(owq),OWQ_size(owq));
+	ib[OWQ_size(owq)]=0;
+
+	lower = strtoul(ib,&ib2,0);
+	if (ib2 == ib)
+		return -EINVAL;
+	if (*ib2++ != ',')
+		return -EINVAL;
+	upper = strtoul(ib2,&ib,0);
+	if (ib2 == ib)
+		return -EINVAL;
+	if (*ib == '\n')
+		ib++;
+	if (*ib)
+		return -EINVAL;
+	if (lower > 65535 || upper > 65535)
+		return -EINVAL;
+	
+	buf[0] = lower>>8;
+	buf[1] = lower;
+	buf[2] = upper>>8;
+	buf[3] = upper;
 	return GB_to_Z_OR_E( OW_w_std( buf,len, pn->selected_filetype->data.u, pn->extension, pn) ) ;
 }
 
