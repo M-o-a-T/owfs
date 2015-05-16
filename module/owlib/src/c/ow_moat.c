@@ -34,9 +34,11 @@ READ_FUNCTION(FS_r_port);
 READ_FUNCTION(FS_r_port_all);
 READ_FUNCTION(FS_r_pwm);
 READ_FUNCTION(FS_r_adc);
+READ_FUNCTION(FS_r_adc_all);
 READ_FUNCTION(FS_r_count);
 READ_FUNCTION(FS_r_raw_zero);
 READ_FUNCTION(FS_r_alarm);
+READ_FUNCTION(FS_r_alarm_two);
 READ_FUNCTION(FS_r_alarm_sources);
 WRITE_FUNCTION(FS_w_raw);
 WRITE_FUNCTION(FS_w_port);
@@ -82,8 +84,9 @@ static struct filetype MOAT[] = {
 
 	{"port", PROPERTY_LENGTH_YESNO, &maxports, ft_yesno, fc_volatile, FS_r_port, FS_w_port, FS_show_entry, {.u=M_PORT,}, },
 	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port_all, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
-	{"pwm", 20, &maxports, ft_binary, fc_stable, FS_r_pwm, FS_w_pwm, FS_show_entry, {.u=M_PWM,}, },
-	{"adc", 20, &maxports, ft_binary, fc_stable, FS_r_adc, FS_w_adc, FS_show_entry, {.u=M_ADC,}, },
+	{"pwm", 20, &maxports, ft_vascii, fc_stable, FS_r_pwm, FS_w_pwm, FS_show_entry, {.u=M_PWM,}, },
+	{"adc", 20, &maxports, ft_vascii, fc_stable, FS_r_adc, FS_w_adc, FS_show_entry, {.u=M_ADC,}, },
+	{"adcs", 255, NON_AGGREGATE, ft_vascii, fc_stable, FS_r_adc_all, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_ADC,}, },
 	{"count", PROPERTY_LENGTH_UNSIGNED, &maxports, ft_unsigned, fc_volatile, FS_r_count, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_COUNT,}, },
 	{"alarm", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"alarm/sources", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm_sources, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
@@ -94,7 +97,7 @@ static struct filetype MOAT[] = {
 	{"alarm/port", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_PORT,}, },
 	{"alarm/pwm", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_PWM,}, },
 	{"alarm/count", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_COUNT,}, },
-	{"alarm/adc", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_ADC,}, },
+	{"alarm/adc", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm_two, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_ADC,}, },
 	{"alarm/temp", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_TEMP,}, },
 	{"alarm/humid", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_HUMID,}, },
 	{"alarm/pid", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_PID,}, },
@@ -335,6 +338,26 @@ static ZERO_OR_ERROR FS_r_adc(struct one_wire_query *owq)
     return OWQ_format_output_offset_and_size(obuf, olen, owq);
 }
 
+static ZERO_OR_ERROR FS_r_adc_all(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    BYTE buf[32], *bp = buf;
+    size_t len = sizeof(buf);
+    char obuf[255];
+    size_t olen = 0;
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, pn->selected_filetype->data.u, 0, pn));
+	if (len % 1)
+		return -EINVAL;
+
+	while(len > 0) {
+		olen += snprintf(obuf+olen,sizeof(obuf)-olen-1, "%d,", bp[0]<<8|bp[1]);
+		bp += 2;
+		len -= 2;
+	}
+    return OWQ_format_output_offset_and_size(obuf, olen ? olen-1 : 0, owq);
+}
+
 static ZERO_OR_ERROR FS_r_count(struct one_wire_query *owq)
 {
 	struct parsedname *pn = PN(owq);
@@ -361,13 +384,39 @@ static ZERO_OR_ERROR FS_r_alarm(struct one_wire_query *owq)
 
 	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_ALERT, pn->selected_filetype->data.u, pn));
 
-	for(i=1;i<=len*8;i++) {
-		if(buf[i>>3] & m)
-			olen += snprintf(obuf+olen,sizeof(obuf)-olen-1,"%d,",i);
+	for(i=0;i<len*8;i++) {
+		if (buf[i>>3] & m)
+			olen += snprintf(obuf+olen,sizeof(obuf)-olen-1,"%d,",i+1);
 		if (m == 0x80)
 			m = 1;
 		else
 			m <<= 1;
+	}
+    return OWQ_format_output_offset_and_size(obuf, olen ? olen-1 : 0, owq);
+}
+
+static ZERO_OR_ERROR FS_r_alarm_two(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    BYTE buf[8];
+	char obuf[255],olen=0;
+    size_t len = sizeof(buf);
+	uint8_t m=1,i,j=1;
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_ALERT, pn->selected_filetype->data.u, pn));
+
+	for(i=0;i<len;) {
+		if (buf[i] & m)
+			olen += snprintf(obuf+olen,sizeof(obuf)-olen-1,"-%d,",j);
+		m <<= 1;
+		if (buf[i] & m)
+			olen += snprintf(obuf+olen,sizeof(obuf)-olen-1,"+%d,",j);
+		if (m == 0x80) {
+			m = 1;
+			i++;
+		} else
+			m <<= 1;
+		j += 1;
 	}
     return OWQ_format_output_offset_and_size(obuf, olen ? olen-1 : 0, owq);
 }
