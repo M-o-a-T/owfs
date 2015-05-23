@@ -256,7 +256,7 @@ static void *ProcessAcceptSocket(void *arg)
 	// cleanup
 	Test_and_Close( &(asd->acceptfd) );
 	owfree(asd);
-	LEVEL_DEBUG("Normal exit.");
+	LEVEL_DEBUG("Normal completion.");
 
 	// All done. If shutdown in progress and this is a last handler thread, send a message to the main thread.
 	RWLOCK_RLOCK( shutdown_mutex_rw ) ;
@@ -332,8 +332,6 @@ void ServerProcess(void (*HandlerRoutine) (FILE_DESCRIPTOR_OR_ERROR file_descrip
 		ERROR_DEFAULT("Cannot allocate a shutdown pipe. The program shutdown may be messy");
 		Init_Pipe( shutdown_pipe ) ;
 	}
-//	fcntl (shutdown_pipe[fd_pipe_read], F_SETFD, FD_CLOEXEC); // for safe forking
-//	fcntl (shutdown_pipe[fd_pipe_write], F_SETFD, FD_CLOEXEC); // for safe forking
 		
 	if ( GOOD( SetupListenSockets( HandlerRoutine ) ) ) {
 		Announce_Systemd() ; // systemd mode -- ready for business

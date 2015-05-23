@@ -8,6 +8,8 @@
     1wire/iButton system from Dallas Semiconductor
 */
 
+// regex
+
 #include <config.h>
 #include "owfs_config.h"
 #include "ow_devices.h"
@@ -39,7 +41,7 @@ static enum parse_enum Parse_Property(char *filename, struct parsedname *pn);
 static enum parse_enum Parse_RealDeviceSN(enum parse_pass remote_status, struct parsedname *pn);
 static enum parse_enum Parse_NonRealDevice(char *filename, struct parsedname *pn);
 static enum parse_enum Parse_External_Device( char *filename, struct parsedname *pn) ;
-static enum parse_enum Parse_Bus(char *pathnow, struct parsedname *pn);
+static enum parse_enum Parse_Bus( INDEX_OR_ERROR bus_number, struct parsedname *pn);
 static enum parse_enum Parse_Alias(char *filename, enum parse_pass remote_status, struct parsedname *pn);
 static enum parse_enum Parse_Alias_Known( char *filename, enum parse_pass remote_status, struct parsedname *pn);
 static void ReplaceAliasInPath( char * filename, struct parsedname * pn);
@@ -339,41 +341,68 @@ static enum parse_enum set_type( enum ePN_type epntype, struct parsedname * pn )
 // Early parsing -- only bus entries, uncached and text may have preceeded
 static enum parse_enum Parse_Unspecified(char *pathnow, enum parse_pass remote_status, struct parsedname *pn)
 {
-	if (strncasecmp(pathnow, "bus.", 4) == 0) {
-		return Parse_Bus(pathnow, pn);
+	static regex_t rx_bus ;
+	static regex_t rx_set ;
+	static regex_t rx_sta ;
+	static regex_t rx_str ;
+	static regex_t rx_sys ;
+	static regex_t rx_int ;
+	static regex_t rx_tex ;
+	static regex_t rx_jso ;
+	static regex_t rx_unc ;
+	static regex_t rx_una ;
+	
+	struct ow_regmatch orm ;
+	orm.number = 1 ; // for bus
+	
+	ow_regcomp( &rx_bus, "^bus\\.([[:digit:]]+)/?", REG_ICASE ) ;
+	ow_regcomp( &rx_set, "^settings/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_sta, "^statistics/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_str, "^structure/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_sys, "^system/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_int, "^interface/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_tex, "^text/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_jso, "^json/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_unc, "^uncached/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_una, "^unaliased/?", REG_ICASE | REG_NOSUB ) ;
+	
+	if ( ow_regexec( &rx_bus, pathnow, &orm ) == 0) {
+		INDEX_OR_ERROR bus_number = (INDEX_OR_ERROR) atoi(orm.match[1]) ;
+		ow_regexec_free( &orm ) ;
+		return Parse_Bus( bus_number, pn);
 
-	} else if (strcasecmp(pathnow, "settings") == 0) {
+	} else if (ow_regexec( &rx_set, pathnow, NULL ) == 0) {
 		return set_type( ePN_settings, pn ) ;
 
-	} else if (strcasecmp(pathnow, "statistics") == 0) {
+	} else if (ow_regexec( &rx_sta, pathnow, NULL ) == 0) {
 		return set_type( ePN_statistics, pn ) ;
 
-	} else if (strcasecmp(pathnow, "structure") == 0) {
+	} else if (ow_regexec( &rx_str, pathnow, NULL ) == 0) {
 		return set_type( ePN_structure, pn ) ;
 
-	} else if (strcasecmp(pathnow, "system") == 0) {
+	} else if (ow_regexec( &rx_sys, pathnow, NULL ) == 0) {
 		return set_type( ePN_system, pn ) ;
 
-	} else if (strcasecmp(pathnow, "interface") == 0) {
+	} else if (ow_regexec( &rx_int, pathnow, NULL ) == 0) {
 		if (!SpecifiedBus(pn)) {
 			return parse_error;
 		}
 		pn->type = ePN_interface;
 		return parse_nonreal;
 
-	} else if (strcasecmp(pathnow, "text") == 0) {
+	} else if (ow_regexec( &rx_tex, pathnow, NULL ) == 0) {
 		pn->state |= ePS_text;
 		return parse_first;
 
-	} else if (strcasecmp(pathnow, "json") == 0) {
+	} else if (ow_regexec( &rx_jso, pathnow, NULL ) == 0) {
 		pn->state |= ePS_json;
 		return parse_first;
 
-	} else if (strcasecmp(pathnow, "uncached") == 0) {
+	} else if (ow_regexec( &rx_unc, pathnow, NULL ) == 0) {
 		pn->state |= ePS_uncached;
 		return parse_first;
 
-	} else if (strcasecmp(pathnow, "unaliased") == 0) {
+	} else if (ow_regexec( &rx_una, pathnow, NULL ) == 0) {
 		pn->state |= ePS_unaliased;
 		return parse_first;
 
@@ -385,7 +414,11 @@ static enum parse_enum Parse_Unspecified(char *pathnow, enum parse_pass remote_s
 
 static enum parse_enum Parse_Branch(char *pathnow, enum parse_pass remote_status, struct parsedname *pn)
 {
-	if (strcasecmp(pathnow, "alarm") == 0) {
+	static regex_t rx_ala ;
+	
+	ow_regcomp( &rx_ala, "^alarm\?", REG_ICASE | REG_NOSUB ) ;
+	
+	if (ow_regexec( &rx_ala, pathnow, NULL ) == 0) {
 		pn->state |= ePS_alarm;
 		pn->type = ePN_real;
 		return parse_real;
@@ -395,27 +428,41 @@ static enum parse_enum Parse_Branch(char *pathnow, enum parse_pass remote_status
 
 static enum parse_enum Parse_Real(char *pathnow, enum parse_pass remote_status, struct parsedname *pn)
 {
-	if (strcasecmp(pathnow, "simultaneous") == 0) {
+	static regex_t rx_sim ;
+	static regex_t rx_the ;
+	static regex_t rx_tex ;
+	static regex_t rx_jso ;
+	static regex_t rx_unc ;
+	static regex_t rx_una ;
+	
+	ow_regcomp( &rx_sim, "^simultaneous/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_the, "^thermostat/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_tex, "^text/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_jso, "^json/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_unc, "^uncached/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_una, "^unaliased/?", REG_ICASE | REG_NOSUB ) ;
+	
+	if (ow_regexec( &rx_sim, pathnow, NULL ) == 0) {
 		pn->selected_device = DeviceSimultaneous;
 		return parse_prop;
 
-	} else if (strcasecmp(pathnow, "text") == 0) {
+	} else if (ow_regexec( &rx_tex, pathnow, NULL ) == 0) {
 		pn->state |= ePS_text;
 		return parse_real;
 
-	} else if (strcasecmp(pathnow, "json") == 0) {
+	} else if (ow_regexec( &rx_jso, pathnow, NULL ) == 0) {
 		pn->state |= ePS_json;
 		return parse_real;
 
-	} else if (strcasecmp(pathnow, "thermostat") == 0) {
+	} else if (ow_regexec( &rx_the, pathnow, NULL ) == 0) {
 		pn->selected_device = DeviceThermostat;
 		return parse_prop;
 
-	} else if (strcasecmp(pathnow, "uncached") == 0) {
+	} else if (ow_regexec( &rx_unc, pathnow, NULL ) == 0) {
 		pn->state |= ePS_uncached;
 		return parse_real;
 
-	} else if (strcasecmp(pathnow, "unaliased") == 0) {
+	} else if (ow_regexec( &rx_una, pathnow, NULL ) == 0) {
 		pn->state |= ePS_unaliased;
 		return parse_real;
 
@@ -426,19 +473,29 @@ static enum parse_enum Parse_Real(char *pathnow, enum parse_pass remote_status, 
 
 static enum parse_enum Parse_NonReal(char *pathnow, struct parsedname *pn)
 {
-	if (strcasecmp(pathnow, "text") == 0) {
+	static regex_t rx_tex ;
+	static regex_t rx_jso ;
+	static regex_t rx_unc ;
+	static regex_t rx_una ;
+	
+	ow_regcomp( &rx_tex, "^text/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_jso, "^json/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_unc, "^uncached/?", REG_ICASE | REG_NOSUB ) ;
+	ow_regcomp( &rx_una, "^unaliased/?", REG_ICASE | REG_NOSUB ) ;
+
+	if (ow_regexec( &rx_tex, pathnow, NULL )  == 0) {
 		pn->state |= ePS_text;
 		return parse_nonreal;
 
-	} else if (strcasecmp(pathnow, "json") == 0) {
+	} else if (ow_regexec( &rx_jso, pathnow, NULL )  == 0) {
 		pn->state |= ePS_json;
 		return parse_nonreal;
 
-	} else if (strcasecmp(pathnow, "uncached") == 0) {
+	} else if (ow_regexec( &rx_unc, pathnow, NULL )  == 0) {
 		pn->state |= ePS_uncached;
 		return parse_nonreal;
 
-	} else if (strcasecmp(pathnow, "unaliased") == 0) {
+	} else if (ow_regexec( &rx_una, pathnow, NULL )  == 0) {
 		pn->state |= ePS_unaliased;
 		return parse_nonreal;
 
@@ -450,16 +507,15 @@ static enum parse_enum Parse_NonReal(char *pathnow, struct parsedname *pn)
 }
 
 /* We've reached a /bus.n entry */
-static enum parse_enum Parse_Bus(char *pathnow, struct parsedname *pn)
+static enum parse_enum Parse_Bus( INDEX_OR_ERROR bus_number, struct parsedname *pn)
 {
-	char *found;
-	INDEX_OR_ERROR bus_number;
-	/* Processing for bus.X directories -- eventually will make this more generic */
-	if ( !isdigit( (int) pathnow[4] ) ) {
-		return parse_error;
-	}
+	static regex_t rx_p_bus ;
+	struct ow_regmatch orm ;
+	
+	ow_regcomp( &rx_p_bus, "^/bus\\.[[:digit:]]+/?", REG_ICASE ) ;
+	orm.number = 0 ;
 
-	bus_number = atoi(&pathnow[4]);
+	/* Processing for bus.X directories -- eventually will make this more generic */
 	if ( INDEX_NOT_VALID(bus_number) ) {
 		return parse_error;
 	}
@@ -489,18 +545,16 @@ static enum parse_enum Parse_Bus(char *pathnow, struct parsedname *pn)
 	}
 
 	/* Create the path without the "bus.x" part in pn->path_to_server */
-	if ( (found = strstr(pn->path, "/bus.")) ) {
-		int length = found - pn->path;
-		if ((found = strchr(found + 1, '/'))) {	// more after bus
-			strcpy(&(pn->path_to_server[length]), found);	// copy rest
-		} else {
-			pn->path_to_server[length] = '\0';	// add final null
-		}
+	if ( ow_regexec( &rx_p_bus, pn->path, &orm ) == 0 ) {
+		strcpy( pn->path_to_server, orm.pre[0] ) ;
+		strcat( pn->path_to_server, "/" ) ;
+		strcat( pn->path_to_server, orm.post[0] ) ;
+		ow_regexec_free( &orm ) ;
 	}
 	return parse_first;
 }
 
-// search path for this exact mathing path segment
+// search path for this exact matching path segment
 static char * find_segment_in_path( char * segment, char * path )
 {
 	int segment_length = strlen(segment) ;
@@ -530,7 +584,7 @@ static char * find_segment_in_path( char * segment, char * path )
 static void ReplaceAliasInPath( char * filename, struct parsedname * pn)
 {
 	int alias_len = strlen(filename) ;
-
+	
 	// check total length
 	if ( strlen(pn->path_to_server) + 14 - alias_len <= PATH_MAX ) {
 		// find the alias
@@ -664,9 +718,6 @@ static enum parse_enum Parse_External_Device( char *filename, struct parsedname 
 
 
 /* Parse Name (non-device name) part of string */
-/* Return -ENOENT if not a valid name
-   return 0 if good
-*/
 static enum parse_enum Parse_NonRealDevice(char *filename, struct parsedname *pn)
 {
 	//printf("Parse_NonRealDevice: [%s] [%s]\n", filename, pn->path);
@@ -677,94 +728,128 @@ static enum parse_enum Parse_NonRealDevice(char *filename, struct parsedname *pn
 
 static enum parse_enum Parse_Property(char *filename, struct parsedname *pn)
 {
-	char *dot = filename;
+	struct device * pdev = pn->selected_device ;
+	struct filetype * ft ;
+	
+	static regex_t rx_extension ;
+	static regex_t rx_all ;
+	static regex_t rx_byte ;
+	static regex_t rx_number ;
+	static regex_t rx_letter ;
+	int extension_given ;
 
+	struct ow_regmatch orm ;
+	orm.number = 0 ;
+	
+	ow_regcomp( &rx_extension, "\\.", 0 ) ; 
+	ow_regcomp( &rx_all, "\\.all$", REG_ICASE ) ; 
+	ow_regcomp( &rx_byte, "\\.byte$", REG_ICASE ) ; 
+	ow_regcomp( &rx_number, "\\.[[:digit:]]+$", 0 ) ; 
+	ow_regcomp( &rx_letter, "\\.[[:alpha:]]$", REG_ICASE ) ; 
+	
 	//printf("FilePart: %s %s\n", filename, pn->path);
 
 	// Special case for remote device. Use distant data
-	if ( pn->selected_device == &RemoteDevice ) {
+	if ( pdev == &RemoteDevice ) {
 		// remote device, no known sn, can't handle a property
 		return parse_error ;
 	}
 
 	// separate filename.dot
-	filename = strsep(&dot, ".");
-	//printf("FP name=%s, dot=%s\n", filename, dot);
-
-	/* Match to known filetypes for this device */
-	pn->selected_filetype =
-		 bsearch(filename, pn->selected_device->filetype_array,
-				 (size_t) pn->selected_device->count_of_filetypes, sizeof(struct filetype), filetype_cmp) ;
-				 
-	if ( pn->selected_filetype == NO_FILETYPE ) {
+//	filename = strsep(&dot, ".");
+	if ( ow_regexec( &rx_extension, filename, &orm ) == 0 ) {
+		// extension given
+		extension_given = 1 ;
+		ft =
+			 bsearch(orm.pre[0], pdev->filetype_array,
+					 (size_t) pdev->count_of_filetypes, sizeof(struct filetype), filetype_cmp) ;
+		ow_regexec_free( &orm ) ;
+	} else {
+		// no extension given
+		extension_given = 0 ;
+		ft =
+			 bsearch(filename, pdev->filetype_array,
+					 (size_t) pdev->count_of_filetypes, sizeof(struct filetype), filetype_cmp) ;
+	}
+	
+	pn->selected_filetype = ft ;			 
+	if (ft == NO_FILETYPE ) {
 		LEVEL_DEBUG("Unknown property for this device %s",SAFESTRING(filename) ) ;
 		return parse_error;			/* filetype not found */
 	}
 		
 	//printf("FP known filetype %s\n",pn->selected_filetype->name) ;
 	/* Filetype found, now process extension */
-	if (dot == NULL || dot[0] == '\0') {	/* no extension */
-		if (pn->selected_filetype->ag != NON_AGGREGATE) {
+	if (extension_given==0) {	/* no extension */
+		if (ft->ag != NON_AGGREGATE) {
 			return parse_error;	/* aggregate filetypes need an extension */
 		}
 		pn->extension = 0;	/* default when no aggregate */
 
 	// Non-aggregate cannot have an extension
-	} else if (pn->selected_filetype->ag == NON_AGGREGATE) {
+	} else if (ft->ag == NON_AGGREGATE) {
 		return parse_error;	/* An extension not allowed when non-aggregate */
 
 	// Sparse uses the extension verbatim (text or number)
-	} else if (pn->selected_filetype->ag->combined==ag_sparse)  { /* Sparse */
-		if (pn->selected_filetype->ag->letters == ag_letters) {	/* text string */
+	} else if (ft->ag->combined==ag_sparse)  { /* Sparse */
+		if (ft->ag->letters == ag_letters) {	/* text string */
 			pn->extension = 0;	/* text extension, not number */
-			pn->sparse_name = owstrdup(dot) ;
+			ow_regexec( &rx_extension, filename, &orm ) ; // don't need to test -- already succesful
+			pn->sparse_name = owstrdup(orm.post[0]) ;
+			ow_regexec_free( &orm ) ;
+			LEVEL_DEBUG("Sparse alpha extension found: <%s>",pn->sparse_name);
 		} else {			/* Numbers */
-			char *p;
-			//printf("FP numbers\n") ;
-			pn->extension = strtol(dot, &p, 0);	/* Number conversion */
-			if ((p == dot) || ((pn->extension == 0) && (errno == -EINVAL))) {
-				return parse_error;	/* Bad number */
+			if ( ow_regexec( &rx_number, filename, &orm ) == 0 ) { 
+				pn->extension = atoi( &orm.match[0][1] );	/* Number conversion */
+				ow_regexec_free( &orm ) ;
+				LEVEL_DEBUG("Sparse numeric extension found: <%ld>",(long int) pn->extension);
+			} else {
+				LEVEL_DEBUG("Non numeric extension for %s",filename ) ;
+				return parse_error ;
 			}
 		}
 
 	// Non-sparse "ALL"
-	} else if (strcasecmp(dot, "ALL") == 0) {
+	} else if (ow_regexec( &rx_all, filename, NULL ) == 0) {
 		//printf("FP ALL\n");
 		pn->extension = EXTENSION_ALL;	/* ALL */
 	
 	// Non-sparse "BYTE"
-	} else if (pn->selected_filetype->format == ft_bitfield && strcasecmp(dot, "BYTE") == 0) {
+	} else if (ft->format == ft_bitfield && ow_regexec( &rx_byte, filename, NULL) == 0) {
 		pn->extension = EXTENSION_BYTE;	/* BYTE */
 		//printf("FP BYTE\n") ;
 
 	// Non-sparse extension -- interpret and check bounds
 	} else {				/* specific extension */
-		if (pn->selected_filetype->ag->letters == ag_letters) {	/* Letters */
+		if (ft->ag->letters == ag_letters) {	/* Letters */
 			//printf("FP letters\n") ;
-			if ( (strlen(dot) != 1) || !isupper( (int) dot[0] ) ) {
+			if ( ow_regexec( &rx_letter, filename, &orm ) == 0 ) {
+				pn->extension = toupper(orm.match[0][1]) - 'A';	/* Letter extension */
+				ow_regexec_free( &orm ) ;
+			} else {
 				return parse_error;
 			}
-			pn->extension = dot[0] - 'A';	/* Letter extension */
 		} else {			/* Numbers */
-			char *p;
-			//printf("FP numbers\n") ;
-			pn->extension = strtol(dot, &p, 0);	/* Number conversion */
-			if ((p == dot) || ((pn->extension == 0) && (errno == -EINVAL))) {
-				return parse_error;	/* Bad number */
+			if ( ow_regexec( &rx_number, filename, &orm ) == 0 ) { 
+				pn->extension = atoi( &orm.match[0][1] );	/* Number conversion */
+				ow_regexec_free( &orm ) ;
+			} else {
+				return parse_error;
 			}
 		}
 		//printf("FP ext=%d nr_elements=%d\n", pn->extension, pn->selected_filetype->ag->elements) ;
 		/* Now check range */
 		if ((pn->extension < 0)
-			|| (pn->extension >= pn->selected_filetype->ag->elements)) {
+			|| (pn->extension >= ft->ag->elements)) {
 			//printf("FP Extension out of range %d %d %s\n", pn->extension, pn->selected_filetype->ag->elements, pn->path);
+			LEVEL_DEBUG("Extension %d out of range",pn->extension ) ;
 			return parse_error;	/* Extension out of range */
 		}
 		//printf("FP in range\n") ;
 	}
 
 	//printf("FP Good\n") ;
-	switch (pn->selected_filetype->format) {
+	switch (ft->format) {
 	case ft_directory:		// aux or main
 		if ( pn->type == ePN_structure ) {
 			// special case, structure for aux and main
@@ -783,7 +868,7 @@ static enum parse_enum Parse_Property(char *filename, struct parsedname *pn)
 		return parse_branch;
 	case ft_subdir:
 		//printf("PN %s is a subdirectory\n", filename);
-		pn->subdir = pn->selected_filetype;
+		pn->subdir = ft;
 		pn->selected_filetype = NO_FILETYPE;
 		return parse_subprop;
 	default:

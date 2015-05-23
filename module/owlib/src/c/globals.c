@@ -51,7 +51,6 @@ struct global Globals = {
 	.fatal_debug = 1,
 	.fatal_debug_file = NULL,
 
-	.concurrent_connections = 10,
 	.readonly = 0,
 	.max_clients = 250,
 
@@ -81,9 +80,6 @@ struct global Globals = {
 	.clients_persistent_low = 10,
 	.clients_persistent_high = 20,
 
-	.usb_scan_interval = DEFAULT_USB_SCAN_INTERVAL,
-	.enet_scan_interval = DEFAULT_ENET_SCAN_INTERVAL,
-
 	.pingcrazy = 0,
 	.no_dirall = 0,
 	.no_get = 0,
@@ -108,6 +104,10 @@ struct global Globals = {
 	
 //	.allow_external = 1 , // for testing
 	.allow_external = 0 , // unless program == owexternal
+	
+#if OW_USB
+	.luc = NULL ,
+#endif /* OW_USB */
 };
 
 // generic value for ignorable function returns 
