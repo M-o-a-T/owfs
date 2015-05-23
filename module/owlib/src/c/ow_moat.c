@@ -462,11 +462,28 @@ static ZERO_OR_ERROR FS_r_alarm_sources(struct one_wire_query *owq)
 static ZERO_OR_ERROR FS_r_console(struct one_wire_query *owq)
 {
     BYTE buf[256];
-    size_t len = OWQ_size(owq);
+    size_t buflen;
+	size_t rd = 0;
+	buflen = OWQ_size(owq);
+	if (buflen > sizeof(buf))
+		buflen = sizeof(buf);
 
-	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_CONSOLE, 1, PN(owq)));
+	while(1) {
+		size_t len = buflen-rd;
+		if (!len)
+			break;
 
-    return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
+		if (BAD( OW_r_std(buf+rd,&len, M_CONSOLE, 1, PN(owq)))) {
+			if (rd)
+				break;
+			return -EINVAL;
+		}
+		if (!len)
+			break;
+		rd += len;
+	}
+
+    return OWQ_format_output_offset_and_size((const char *)buf, rd, owq);
 }
 
 static ZERO_OR_ERROR FS_w_console(struct one_wire_query *owq)
