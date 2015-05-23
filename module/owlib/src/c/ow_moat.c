@@ -25,7 +25,6 @@ $Id$
 
 #define VISIBLE_FUNCTION(name)  static enum e_visibility name( const struct parsedname * pn );
 
-READ_FUNCTION(FS_r_info_raw);
 READ_FUNCTION(FS_r_name);
 READ_FUNCTION(FS_r_types);
 READ_FUNCTION(FS_r_console);
@@ -140,17 +139,6 @@ static struct filetype MOAT[] = {
 DeviceEntryExtended(F0, MOAT, DEV_alarm, NO_GENERIC_READ, NO_GENERIC_WRITE);
 
 /* ------- Functions ------------ */
-
-static ZERO_OR_ERROR FS_r_info_raw(struct one_wire_query *owq)
-{
-    BYTE buf[256];
-    size_t len = OWQ_size(owq);
-	if(len>sizeof(buf)) len=sizeof(buf);
-
-	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_CONFIG, OWQ_pn(owq).extension, PN(owq)));
-
-    return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
-}
 
 static enum e_visibility FS_show_entry( const struct parsedname * pn )
 {
@@ -860,65 +848,4 @@ static GOOD_OR_BAD OW_r_statuses(BYTE *buf, const struct parsedname *pn)
 	}
 	return gbGOOD;
 }
-
-#if 0
-static ZERO_OR_ERROR FS_w_mem(struct one_wire_query *owq)
-{
-	return COMMON_write_eprom_mem_owq(owq) ;
-}
-
-static ZERO_OR_ERROR FS_w_status(struct one_wire_query *owq)
-{
-	return GB_to_Z_OR_E(OW_w_status(OWQ_explode(owq))) ;
-}
-
-static ZERO_OR_ERROR FS_w_page(struct one_wire_query *owq)
-{
-	size_t pagesize = 32;
-	return COMMON_offset_process( FS_w_mem, owq, OWQ_pn(owq).extension * pagesize) ;
-}
-
-static GOOD_OR_BAD OW_w_status(BYTE * data, size_t size, off_t offset, struct parsedname *pn)
-{
-	BYTE p[6] = { _1W_WRITE_STATUS, LOW_HIGH_ADDRESS(offset), data[0] };
-	GOOD_OR_BAD ret = gbGOOD;
-	struct transaction_log tfirst[] = {
-		TRXN_START,
-		TRXN_WR_CRC16(p, 4, 0),
-		TRXN_PROGRAM,
-		TRXN_READ1(p),
-		TRXN_END,
-	};
-
-	if (size == 0) {
-		return gbGOOD;
-	}
-	if (size == 1) {
-		return BUS_transaction(tfirst, pn) || (p[0] & (~data[0]));
-	}
-	BUSLOCK(pn);
-	if ( BAD(BUS_transaction(tfirst, pn)) || (p[0] & ~data[0])) {
-		ret = gbBAD;
-	} else {
-		size_t i;
-		const BYTE *d = &data[1];
-		UINT s = offset + 1;
-		struct transaction_log trest[] = {
-			//TRXN_WR_CRC16_SEEDED( p, &s, 1, 0 ) ,
-			TRXN_WR_CRC16_SEEDED(p, p, 1, 0),
-			TRXN_PROGRAM,
-			TRXN_READ1(p),
-			TRXN_END,
-		};
-		for (i = 0; i < size; ++i, ++d, ++s) {
-			if ( BAD(BUS_transaction(trest, pn)) || (p[0] & ~d[0])) {
-				ret = gbBAD;
-				break;
-			}
-		}
-	}
-	BUSUNLOCK(pn);
-	return ret;
-}
-#endif
 
