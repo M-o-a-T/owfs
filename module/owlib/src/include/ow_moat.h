@@ -40,7 +40,7 @@ DeviceHeader(MOAT);
 typedef enum {
 	M_CONFIG, // configuration data
 	M_ALERT,  // conditional search
-	M_STATS,  // some device statistics (broken comms, CRC errors ...)
+	M_STATUS, // some device status+statistics (reset, broken comms, CRC errors ...)
 	M_CONSOLE,// debugging, commands, whatever
 	M_PORT,   // binary input/output
 	M_PWM,    // pulse-width modulated output (tied to output port)
@@ -58,7 +58,7 @@ typedef enum {
 static const char *m_names[] = {
 	"config",
 	"alert",
-	"stats",
+	"status",
 	"console",
 	"port",
 	"pwm",
@@ -84,6 +84,21 @@ typedef enum {
 	CFG_MAX,
 #define CFG_MAX CFG_MAX
 } cfg_type;
+
+/* Status */
+typedef enum {
+    S_reboot = 1,
+    S_max
+#define STATUS_MAX S_max
+} t_status_nr;
+
+/* reason for reset */
+typedef enum {
+    S_boot_unknown,
+    S_boot_powerup,
+    S_boot_brownout,
+    S_boot_watchdog
+} t_status_boot;
 
 /*
     M_INFO: basic data about the device.
