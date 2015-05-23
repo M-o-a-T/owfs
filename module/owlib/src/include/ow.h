@@ -132,6 +132,7 @@
 #endif							/* OW_CYGWIN */
 #endif							/* HAVE_STDINT_H */
 
+#include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -273,6 +274,9 @@ time_t timegm(struct tm *tm);
 /* Many mutexes separated out for readability */
 #include "ow_mutexes.h"
 
+// regular expressions
+#include "ow_regex.h"
+
 /* Special checks for config file changes -- OS specific */
  #ifdef HAVE_SYS_EVENT_H
   /* BSD and OSX */
@@ -296,6 +300,10 @@ enum  e_inet_type { inet_none, inet_systemd , inet_launchd, } ;
 #include "ow_dnssd.h"
 #endif							/* OW_ZERO */
 #include "ow_avahi.h"
+
+#if OW_USB
+#include <libusb.h>
+#endif /* OW_USB */
 
 /*
     OW -- One Wire
@@ -343,7 +351,6 @@ struct connection_out;
 
 /* device display format */
 enum deviceformat { fdi, fi, fdidc, fdic, fidc, fic };
-
 /* OWSERVER messages */
 #include "ow_message.h"
 

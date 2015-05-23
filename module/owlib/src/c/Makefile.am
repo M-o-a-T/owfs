@@ -79,6 +79,7 @@ OWLIB_SOURCE = ow_dl.c            \
                ow_ds2482.c        \
                ow_ds9097.c        \
                ow_ds1410.c        \
+               ow_ds1wm.c         \
                ow_ds9097U.c       \
                ow_ds9490.c        \
                ow_eds.c           \
@@ -115,6 +116,7 @@ OWLIB_SOURCE = ow_dl.c            \
                ow_interface.c     \
                ow_iterate.c       \
                ow_launchd.c       \
+               ow_k1wm.c          \
                ow_kevent.c        \
                ow_lcd.c           \
                ow_lib_close.c     \
@@ -152,6 +154,7 @@ OWLIB_SOURCE = ow_dl.c            \
                ow_read_external.c \
                ow_read_telnet.c   \
                ow_reconnect.c     \
+               ow_regex.c         \
                ow_remote_alias.c  \
                ow_reset.c         \
                ow_return_code.c   \
