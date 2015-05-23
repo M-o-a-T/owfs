@@ -40,6 +40,7 @@ READ_FUNCTION(FS_r_raw_zero);
 READ_FUNCTION(FS_r_alarm);
 READ_FUNCTION(FS_r_alarm_two);
 READ_FUNCTION(FS_r_alarm_sources);
+READ_FUNCTION(FS_r_alarm_status);
 READ_FUNCTION(FS_r_status_reboot);
 WRITE_FUNCTION(FS_w_raw);
 WRITE_FUNCTION(FS_w_port);
@@ -85,7 +86,7 @@ static struct filetype MOAT[] = {
 	{"config/name", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_name, NO_WRITE_FUNCTION, FS_show_one_config, {.u=CFG_NAME,}, },
 	{"config/types", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_types, NO_WRITE_FUNCTION, FS_show_one_config, {.u=CFG_NUMS,}, },
 	{"console", 255, NON_AGGREGATE, ft_vascii, fc_uncached, FS_r_console, FS_w_console, VISIBLE, NO_FILETYPE_DATA, },
-	{"status", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_uncached, NO_READ_FUNCTION, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_STATUS,}, },
+	{"status", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_uncached, NO_READ_FUNCTION, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_STATUS,}, },
 	{"status/reboot", 20, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_status_reboot, NO_WRITE_FUNCTION, FS_show_status, {.u=S_reboot,}, },
 
 	{"port", PROPERTY_LENGTH_YESNO, &maxports, ft_yesno, fc_volatile, FS_r_port, FS_w_port, FS_show_entry, {.u=M_PORT,}, },
@@ -98,7 +99,7 @@ static struct filetype MOAT[] = {
 	{"alarm/sources", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm_sources, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"alarm/config", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_CONFIG,}, },
 	{"alarm/alarm", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_ALERT,}, },
-	{"alarm/status", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_STATUS,}, },
+	{"alarm/status", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm_status, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_STATUS,}, },
 	{"alarm/console", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_CONSOLE,}, },
 	{"alarm/port", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_PORT,}, },
 	{"alarm/pwm", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_PWM,}, },
@@ -481,6 +482,29 @@ static ZERO_OR_ERROR FS_r_alarm_sources(struct one_wire_query *owq)
     return OWQ_format_output_offset_and_size((const char *)buf, len ? len-1 : 0, owq);
 }
 
+static ZERO_OR_ERROR FS_r_alarm_status(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    unsigned char buf[256];
+    size_t len = 0;
+	BYTE b[10];
+    size_t blen = sizeof(b);
+	int i,j;
+
+	RETURN_BAD_IF_BAD( OW_r_std(b, &len, M_ALERT, M_STATUS, pn) );
+
+	for (i=0;i<blen*8;i++) {
+		if (b[i>>3] & (1<<(i&7))) {
+			if (i < S_MAX)
+				len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%s,", s_names[i+1]);
+			else
+				len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%d,", i+1);
+		}
+	}
+
+    return OWQ_format_output_offset_and_size((const char *)buf, len ? len-1 : 0, owq);
+}
+
 static ZERO_OR_ERROR FS_r_status_reboot(struct one_wire_query *owq)
 {
     const char *res = "unknown";
@@ -495,6 +519,9 @@ static ZERO_OR_ERROR FS_r_status_reboot(struct one_wire_query *owq)
 			break;
 		case S_boot_brownout:
 			res = "brownout";
+			break;
+		case S_boot_external:
+			res = "external";
 			break;
 		case S_boot_powerup:
 			res = "powerup";
