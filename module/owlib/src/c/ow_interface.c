@@ -61,6 +61,10 @@ READ_FUNCTION(FS_r_PBM_channel);
 READ_FUNCTION(FS_r_PBM_features);
 READ_FUNCTION(FS_w_PBM_activationcode);
 
+/* Link AUX functions */
+READ_FUNCTION(FS_w_LINK_aux);
+READ_FUNCTION(FS_r_LINK_aux);
+
 static enum e_visibility VISIBLE_DS2482( const struct parsedname * pn )
 {
 	switch ( get_busmode(pn->selected_connection) ) {
@@ -93,6 +97,16 @@ static enum e_visibility VISIBLE_DS2480B( const struct parsedname * pn )
 	}
 }
 
+static enum e_visibility VISIBLE_LINK( const struct parsedname * pn )
+{
+	switch ( get_busmode(pn->selected_connection) ) {
+		case bus_link:
+			return visible_now ;
+		default:
+			return visible_not_now ;
+	}
+}
+
 static enum e_visibility VISIBLE_HA5( const struct parsedname * pn )
 {
 	switch ( get_busmode(pn->selected_connection) ) {
@@ -107,6 +121,26 @@ static enum e_visibility VISIBLE_PBM( const struct parsedname * pn )
 {
 	switch ( get_busmode(pn->selected_connection) ) {
 		case bus_pbm:
+			return visible_now ;
+		default:
+			return visible_not_now ;
+	}
+}
+
+static enum e_visibility VISIBLE_DS1WM( const struct parsedname * pn )
+{
+	switch ( get_busmode(pn->selected_connection) ) {
+		case bus_ds1wm:
+			return visible_now ;
+		default:
+			return visible_not_now ;
+	}
+}
+
+static enum e_visibility VISIBLE_K1WM( const struct parsedname * pn )
+{
+	switch ( get_busmode(pn->selected_connection) ) {
+		case bus_k1wm:
 			return visible_now ;
 		default:
 			return visible_not_now ;
@@ -149,6 +183,11 @@ static struct filetype interface_settings[] = {
 	{"serial/baudrate", PROPERTY_LENGTH_UNSIGNED, NON_AGGREGATE, ft_unsigned, fc_static, FS_r_baud, FS_w_baud, VISIBLE_DS2480B, NO_FILETYPE_DATA, },
 	{"serial/flexible_timing", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_static, FS_r_yesno, FS_w_yesno, VISIBLE_DS2480B, {.s=offsetof(struct connection_in,flex),}, },
 
+	/* Link/LinkUSB AUX line control */
+	{"link", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE_LINK, NO_FILETYPE_DATA, },
+	{"link/auxctrl", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_stable, NO_READ_FUNCTION, FS_w_LINK_aux, VISIBLE_LINK, NO_FILETYPE_DATA, },
+	{"link/auxsense", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_volatile, FS_r_LINK_aux, NO_WRITE_FUNCTION, VISIBLE_LINK, NO_FILETYPE_DATA, },
+
 	{"ha5", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE_HA5, NO_FILETYPE_DATA, },
 	{"ha5/checksum", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_static, FS_r_yesno, FS_w_yesno, VISIBLE_HA5, {.s=offsetof(struct connection_in,master.ha5.checksum), }, },
 	{"ha5/channel", 1, NON_AGGREGATE, ft_ascii, fc_static, FS_r_channel, NO_WRITE_FUNCTION, VISIBLE_HA5, NO_FILETYPE_DATA, },
@@ -160,6 +199,14 @@ static struct filetype interface_settings[] = {
 	{"PBM/serial", PROPERTY_LENGTH_UNSIGNED, NON_AGGREGATE, ft_unsigned, fc_static, FS_r_PBM_serial, NO_WRITE_FUNCTION, VISIBLE_PBM, NO_FILETYPE_DATA, },
 	{"PBM/features", 256, NON_AGGREGATE, ft_ascii, fc_static, FS_r_PBM_features, NO_WRITE_FUNCTION, VISIBLE_PBM, NO_FILETYPE_DATA, },
 	{"PBM/activation_code", 128, NON_AGGREGATE, ft_ascii, fc_static,  NO_READ_FUNCTION, FS_w_PBM_activationcode, VISIBLE_PBM, NO_FILETYPE_DATA, },
+
+	{"DS1WM", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE_DS1WM, NO_FILETYPE_DATA, },
+	{"DS1WM/long_line_mode", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_static, FS_r_yesno, FS_w_yesno, VISIBLE_DS1WM, {.s=offsetof(struct connection_in,master.ds1wm.longline),}, },
+	{"DS1WM/pulse_presence_mask", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_static, FS_r_yesno, FS_w_yesno, VISIBLE_DS1WM, {.s=offsetof(struct connection_in,master.ds1wm.presence_mask),}, },
+
+	{"K1WM", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE_K1WM, NO_FILETYPE_DATA, },
+	{"K1WM/long_line_mode", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_static, FS_r_yesno, FS_w_yesno, VISIBLE_K1WM, {.s=offsetof(struct connection_in,master.ds1wm.longline),}, },
+	{"K1WM/pulse_presence_mask", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_static, FS_r_yesno, FS_w_yesno, VISIBLE_K1WM, {.s=offsetof(struct connection_in,master.ds1wm.presence_mask),}, },
 
 	{"i2c", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE_DS2482, NO_FILETYPE_DATA, },
 	{"i2c/ActivePullUp", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_static, FS_r_APU, FS_w_APU, VISIBLE_DS2482, NO_FILETYPE_DATA, },
@@ -486,12 +533,36 @@ static ZERO_OR_ERROR FS_r_PBM_serial(struct one_wire_query *owq)
 	return 0 ;
 }
 
+/* Link/LinkUSB Aux line control */
+
+// from ow_link.c
+GOOD_OR_BAD LINK_aux_write(int level, struct connection_in * in) ;
+GOOD_OR_BAD LINK_aux_read(int *level_out, struct connection_in * in) ;
+
+static ZERO_OR_ERROR FS_r_LINK_aux(struct one_wire_query *owq)
+{
+	struct connection_in * in = PN(owq)->selected_connection ;
+	int level;
+	RETURN_ERROR_IF_BAD(LINK_aux_read(&level, in));
+
+	OWQ_Y(owq) = level;
+	return OWQ_parse_output(owq);
+}
+
+static ZERO_OR_ERROR FS_w_LINK_aux(struct one_wire_query *owq)
+{
+	struct connection_in * in = PN(owq)->selected_connection ;
+	int level = OWQ_Y(owq) ;
+	return GB_to_Z_OR_E(LINK_aux_write(level, in));
+}
+
+
 #ifdef DEBUG_DS2490
 static ZERO_OR_ERROR FS_r_ds2490status(struct one_wire_query *owq)
 {
 	struct parsedname *pn = PN(owq);
 	char res[256];
-	char buffer[ DS9490_getstatus_BUFFER_LENGTH ];
+	char buffer[ DS9490_getstatus_BUFFER_LENGTH + 1 ];
 	int ret;
 	res[0] = '\0';
 	if (get_busmode(pn->selected_connection) == bus_usb) {

@@ -41,6 +41,7 @@ AM_CFLAGS = -I../include \
 	-Wcast-align \
 	-Wstrict-prototypes \
 	-Wredundant-decls \
+	${LIBUSB_CFLAGS} \
 	${EXTRACFLAGS}
 
 LDADD = ${DL_LIBS} ${LD_EXTRALIBS} ${OSLIBS}
