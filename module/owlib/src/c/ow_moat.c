@@ -475,15 +475,15 @@ static ZERO_OR_ERROR FS_r_alarm_status(struct one_wire_query *owq)
 	struct parsedname *pn = PN(owq);
     unsigned char buf[256];
     size_t len = 0;
-	BYTE b[10];
+	BYTE b[3+((STATUS_MAX+7)>>3)];
     size_t blen = sizeof(b);
-	int i,j;
+	unsigned int i;
 
 	RETURN_BAD_IF_BAD( OW_r_std(b, &len, M_ALERT, M_STATUS, pn) );
 
 	for (i=0;i<blen*8;i++) {
 		if (b[i>>3] & (1<<(i&7))) {
-			if (i < S_MAX)
+			if (i < STATUS_MAX)
 				len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%s,", s_names[i+1]);
 			else
 				len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%d,", i+1);
@@ -839,7 +839,7 @@ static GOOD_OR_BAD OW_r_alarms(BYTE *buf, const struct parsedname *pn, char igno
  */
 static GOOD_OR_BAD OW_r_statuses(BYTE *buf, const struct parsedname *pn)
 {
-	if (BAD( Cache_Get_SlaveSpecific(buf, (STATUS_MAX+7)/8, SlaveSpecificTag(STATUSES), pn))) {
+	if (IsUncachedDir(pn) || BAD( Cache_Get_SlaveSpecific(buf, (STATUS_MAX+7)/8, SlaveSpecificTag(STATUSES), pn))) {
 		size_t buflen = (M_MAX+7)/8;
 		memset(buf,0,buflen); // in case the remote's list is shorter
 
