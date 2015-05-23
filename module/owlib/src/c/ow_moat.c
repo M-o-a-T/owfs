@@ -92,7 +92,7 @@ static struct filetype MOAT[] = {
 	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port_all, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
 	{"pwm", 20, &maxports, ft_vascii, fc_stable, FS_r_pwm, FS_w_pwm, FS_show_entry, {.u=M_PWM,}, },
 	{"adc", 20, &maxports, ft_vascii, fc_stable, FS_r_adc, FS_w_adc, FS_show_entry, {.u=M_ADC,}, },
-	{"adcs", 255, NON_AGGREGATE, ft_vascii, fc_stable, FS_r_adc_all, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_ADC,}, },
+	{"adcs", 255, NON_AGGREGATE, ft_vascii, fc_stable, FS_r_adc_all, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_ADC,}, },
 	{"count", PROPERTY_LENGTH_UNSIGNED, &maxports, ft_unsigned, fc_volatile, FS_r_count, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_COUNT,}, },
 	{"alarm", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"alarm/sources", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm_sources, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
