@@ -9,7 +9,7 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=2
 
-DH_OPTIONS=--with python2 --with quilt --with autotools_dev
+DH_OPTIONS=--with python2 --with quilt --with autotools_dev --with systemd
 
 # export necessary for (hardening) flags for perl
 DEB_CPPFLAGS += `dpkg-buildflags --get CPPFLAGS`
