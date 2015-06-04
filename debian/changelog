@@ -1,3 +1,9 @@
+owfs (3.0p0-2) unstable; urgency=medium
+
+  * include MoaT device
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Sun, 31 May 2015 10:04:58 +0200
+
 owfs (3.0p0-1) unstable; urgency=medium
 
   * Build version 3.0p0
