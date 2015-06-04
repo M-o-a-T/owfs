@@ -34,8 +34,12 @@ READ_FUNCTION(FS_r_port);
 READ_FUNCTION(FS_r_port_all);
 READ_FUNCTION(FS_r_pwm);
 READ_FUNCTION(FS_r_adc);
+READ_FUNCTION(FS_r_adc_all);
 READ_FUNCTION(FS_r_count);
 READ_FUNCTION(FS_r_raw_zero);
+READ_FUNCTION(FS_r_alarm);
+READ_FUNCTION(FS_r_alarm_two);
+READ_FUNCTION(FS_r_alarm_sources);
 WRITE_FUNCTION(FS_w_raw);
 WRITE_FUNCTION(FS_w_port);
 WRITE_FUNCTION(FS_w_pwm);
@@ -45,6 +49,7 @@ VISIBLE_FUNCTION(FS_show_config);
 VISIBLE_FUNCTION(FS_show_one_config);
 VISIBLE_FUNCTION(FS_show_entry);
 VISIBLE_FUNCTION(FS_show_s_entry);
+VISIBLE_FUNCTION(FS_show_alarm);
 
 static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, const struct parsedname *pn);
 static GOOD_OR_BAD OW_w_std(BYTE *buf, size_t size,    BYTE type, BYTE stype, const struct parsedname *pn);
@@ -60,8 +65,10 @@ static GOOD_OR_BAD OW_w_std(BYTE *buf, size_t size,    BYTE type, BYTE stype, co
 /* Internal properties */
 Make_SlaveSpecificTag(FEATURES, fc_stable);  // feature map: array of M_MAX BYTEs
 Make_SlaveSpecificTag(CONFIGS, fc_stable);  // config list: array of CFG_MAX BYTEs
+Make_SlaveSpecificTag(ALARMS, fc_stable);  // config list: array of CFG_MAX BYTEs
 static GOOD_OR_BAD OW_r_features(BYTE *buf, const struct parsedname *pn);
 static GOOD_OR_BAD OW_r_configs(BYTE *buf, const struct parsedname *pn);
+static GOOD_OR_BAD OW_r_alarms(BYTE *buf, const struct parsedname *pn, char ignore);
 
 /* ------- Structures ----------- */
 
@@ -77,14 +84,31 @@ static struct filetype MOAT[] = {
 
 	{"port", PROPERTY_LENGTH_YESNO, &maxports, ft_yesno, fc_volatile, FS_r_port, FS_w_port, FS_show_entry, {.u=M_PORT,}, },
 	{"ports", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_port_all, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
-	{"pwm", 20, &maxports, ft_binary, fc_stable, FS_r_pwm, FS_w_pwm, FS_show_entry, {.u=M_PWM,}, },
-	{"adc", 20, &maxports, ft_binary, fc_stable, FS_r_adc, FS_w_adc, FS_show_entry, {.u=M_ADC,}, },
+	{"pwm", 20, &maxports, ft_vascii, fc_stable, FS_r_pwm, FS_w_pwm, FS_show_entry, {.u=M_PWM,}, },
+	{"adc", 20, &maxports, ft_vascii, fc_stable, FS_r_adc, FS_w_adc, FS_show_entry, {.u=M_ADC,}, },
+	{"adcs", 255, NON_AGGREGATE, ft_vascii, fc_stable, FS_r_adc_all, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_ADC,}, },
 	{"count", PROPERTY_LENGTH_UNSIGNED, &maxports, ft_unsigned, fc_volatile, FS_r_count, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_COUNT,}, },
+	{"alarm", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
+	{"alarm/sources", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm_sources, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
+	{"alarm/config", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_CONFIG,}, },
+	{"alarm/alarm", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_ALERT,}, },
+	{"alarm/stats", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_STATS,}, },
+	{"alarm/console", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_CONSOLE,}, },
+	{"alarm/port", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_PORT,}, },
+	{"alarm/pwm", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_PWM,}, },
+	{"alarm/count", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_COUNT,}, },
+	{"alarm/adc", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm_two, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_ADC,}, },
+	{"alarm/temp", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_TEMP,}, },
+	{"alarm/humid", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_HUMID,}, },
+	{"alarm/pid", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_PID,}, },
+	{"alarm/smoke", 255, NON_AGGREGATE, ft_vascii, fc_volatile, FS_r_alarm, NO_WRITE_FUNCTION, FS_show_alarm, {.u=M_SMOKE,}, },
 
 	{"raw", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"raw/config", 255, &infotypes, ft_binary, fc_static, FS_r_raw, NO_WRITE_FUNCTION, FS_show_config, {.u=M_CONFIG,}, },
 	{"raw/alarm", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, NO_WRITE_FUNCTION, FS_show_entry, {.u=M_ALERT,}, },
 	{"raw/alarms", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_ALERT,}, },
+	{"raw/stat", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_STATS,}, },
+	{"raw/stats", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_STATS,}, },
 	{"raw/port", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PORT,}, },
 	{"raw/ports", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PORT,}, },
 	{"raw/smoke", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_SMOKE,}, },
@@ -137,6 +161,20 @@ static enum e_visibility FS_show_entry( const struct parsedname * pn )
 		return visible_not_now;
 
 	return visible_now;
+}
+
+static enum e_visibility FS_show_alarm( const struct parsedname * pn )
+{
+	BYTE buf[(M_MAX+7)>>3];
+	if (pn->selected_filetype->data.u >= M_MAX)
+		return visible_never;
+
+	if (BAD(OW_r_alarms(buf, pn, 0)))
+		return visible_not_now;
+	if (buf[pn->selected_filetype->data.u >> 3] & (1<<(pn->selected_filetype->data.u & 7)))
+		return visible_now;
+
+	return visible_not_now;
 }
 
 static enum e_visibility FS_show_config( const struct parsedname * pn )
@@ -300,6 +338,26 @@ static ZERO_OR_ERROR FS_r_adc(struct one_wire_query *owq)
     return OWQ_format_output_offset_and_size(obuf, olen, owq);
 }
 
+static ZERO_OR_ERROR FS_r_adc_all(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    BYTE buf[32], *bp = buf;
+    size_t len = sizeof(buf);
+    char obuf[255];
+    size_t olen = 0;
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, pn->selected_filetype->data.u, 0, pn));
+	if (len % 1)
+		return -EINVAL;
+
+	while(len > 0) {
+		olen += snprintf(obuf+olen,sizeof(obuf)-olen-1, "%d,", bp[0]<<8|bp[1]);
+		bp += 2;
+		len -= 2;
+	}
+    return OWQ_format_output_offset_and_size(obuf, olen ? olen-1 : 0, owq);
+}
+
 static ZERO_OR_ERROR FS_r_count(struct one_wire_query *owq)
 {
 	struct parsedname *pn = PN(owq);
@@ -316,6 +374,53 @@ static ZERO_OR_ERROR FS_r_count(struct one_wire_query *owq)
     return 0;
 }
 
+static ZERO_OR_ERROR FS_r_alarm(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    BYTE buf[4];
+	char obuf[255],olen=0;
+    size_t len = sizeof(buf);
+	uint8_t m=1,i;
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_ALERT, pn->selected_filetype->data.u, pn));
+
+	for(i=0;i<len*8;i++) {
+		if (buf[i>>3] & m)
+			olen += snprintf(obuf+olen,sizeof(obuf)-olen-1,"%d,",i+1);
+		if (m == 0x80)
+			m = 1;
+		else
+			m <<= 1;
+	}
+    return OWQ_format_output_offset_and_size(obuf, olen ? olen-1 : 0, owq);
+}
+
+static ZERO_OR_ERROR FS_r_alarm_two(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    BYTE buf[8];
+	char obuf[255],olen=0;
+    size_t len = sizeof(buf);
+	uint8_t m=1,i,j=1;
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_ALERT, pn->selected_filetype->data.u, pn));
+
+	for(i=0;i<len;) {
+		if (buf[i] & m)
+			olen += snprintf(obuf+olen,sizeof(obuf)-olen-1,"-%d,",j);
+		m <<= 1;
+		if (buf[i] & m)
+			olen += snprintf(obuf+olen,sizeof(obuf)-olen-1,"+%d,",j);
+		if (m == 0x80) {
+			m = 1;
+			i++;
+		} else
+			m <<= 1;
+		j += 1;
+	}
+    return OWQ_format_output_offset_and_size(obuf, olen ? olen-1 : 0, owq);
+}
+
 static ZERO_OR_ERROR FS_r_types(struct one_wire_query *owq)
 {
 	struct parsedname *pn = PN(owq);
@@ -323,9 +428,6 @@ static ZERO_OR_ERROR FS_r_types(struct one_wire_query *owq)
     size_t len = 0;
 	BYTE b[M_MAX];
 	int i;
-
-	if(BAD(OW_r_features(b, pn)))
-		return -EINVAL;
 
 	RETURN_ERROR_IF_BAD(OW_r_features(b, pn));
 
@@ -335,6 +437,26 @@ static ZERO_OR_ERROR FS_r_types(struct one_wire_query *owq)
 	}
 
     return OWQ_format_output_offset_and_size((const char *)buf, len, owq);
+}
+
+static ZERO_OR_ERROR FS_r_alarm_sources(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    unsigned char buf[256];
+    size_t len = 0;
+	BYTE b[(M_MAX+7)>>3];
+	int i;
+
+	// Always get a new bitmap when reading this
+	//Cache_Del_Internal(SlaveSpecificTag(ALARMS), pn);
+	RETURN_ERROR_IF_BAD(OW_r_alarms(b, pn, 1));
+
+	for (i=0;i<M_MAX;i++) {
+		if (b[i>>3] & (1<<(i&7)))
+			len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%s,", m_names[i]);
+	}
+
+    return OWQ_format_output_offset_and_size((const char *)buf, len ? len-1 : 0, owq);
 }
 
 static ZERO_OR_ERROR FS_r_console(struct one_wire_query *owq)
@@ -614,6 +736,22 @@ static GOOD_OR_BAD OW_r_configs(BYTE *buf, const struct parsedname *pn)
 
 		RETURN_BAD_IF_BAD( OW_r_std(buf, &buflen, M_CONFIG, CFG_LIST, pn) );
 		Cache_Add_SlaveSpecific(buf, (CFG_MAX+7)/8, SlaveSpecificTag(CONFIGS), pn);
+	}
+	return gbGOOD;
+}
+
+/**
+ * This returns a cached copy of the "which M_* entries are triggering the
+ * alarm" bitmap.
+ */
+static GOOD_OR_BAD OW_r_alarms(BYTE *buf, const struct parsedname *pn, char ignore)
+{
+	if ( ignore || BAD( Cache_Get_SlaveSpecific(buf, (M_MAX+7)/8, SlaveSpecificTag(ALARMS), pn))) {
+		size_t buflen = (M_MAX+7)/8;
+		memset(buf,0,buflen); // in case the remote's list is shorter
+
+		RETURN_BAD_IF_BAD( OW_r_std(buf, &buflen, M_ALERT, 0, pn) );
+		Cache_Add_SlaveSpecific(buf, (M_MAX+7)/8, SlaveSpecificTag(ALARMS), pn);
 	}
 	return gbGOOD;
 }
