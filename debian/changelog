@@ -1,3 +1,9 @@
+owfs (3.1p0+git1-ba7b185-1) unstable; urgency=medium
+
+  * Don't forget to tag your releases!
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Thu, 04 Jun 2015 20:18:23 +0200
+
 owfs (3.0p0+git1-ba7b185-2) unstable; urgency=medium
 
   * Merge to current git
