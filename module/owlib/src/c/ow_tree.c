@@ -108,6 +108,7 @@ void DeviceSort(void)
 	Device2Tree( & d_Example_slave,  ePN_real);
 
 	Device2Tree( & d_BAE,            ePN_real);
+	Device2Tree( & d_MOAT,           ePN_real);
 	Device2Tree( & d_DS1420,         ePN_real);
 	Device2Tree( & d_DS1425,         ePN_real);
 	Device2Tree( & d_DS18S20,        ePN_real);
