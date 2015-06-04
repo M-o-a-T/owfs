@@ -1,0 +1,12 @@
+usr/include/ownetapi.h
+#usr/lib/*/lib*.a
+usr/lib/*/libownet.so
+#usr/lib/*/pkgconfig/*
+#usr/share/pkgconfig/*
+usr/share/man/man1/ownet.1
+usr/share/man/man1/libownet.1
+usr/share/man/man1/ownetapi.1
+usr/share/man/man1/ownetlib.1
+
+module/ownet/c/src/example/ownetexample.c usr/share/doc/libowfs-dev/examples/ownet
+module/ownet/c/src/example/Makefile usr/share/doc/libowfs-dev/examples/ownet

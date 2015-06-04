@@ -1,102 +1,113 @@
 #!/usr/bin/make -f
 # -*- makefile -*-
-#
-# $ID:$
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
 # Uncomment this to turn on verbose mode.
-#export DH_VERBOSE=1
+#export DH_VERBOSE=2
 
-# This has to be exported to make some magic below work.
-export DH_OPTIONS
+DH_OPTIONS=--with python2 --with quilt --with autotools_dev
 
-# These are used for cross-compiling and for saving the configure script
-# from having to guess our platform (since we know it already)
-DEB_HOST_GNU_TYPE   ?= $(shell dpkg-architecture -qDEB_HOST_GNU_TYPE)
-DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
+# export necessary for (hardening) flags for perl
+DEB_CPPFLAGS += `dpkg-buildflags --get CPPFLAGS`
+DEB_CFLAGS += `dpkg-buildflags --get CFLAGS`
+DEB_LDFLAGS = `dpkg-buildflags --get LDFLAGS`
+export DEB_CPPFLAGS DEB_CFLAGS DEB_LDFLAGS 
 
+CONFIGURE_OPTIONS=\
+	--enable-debian       \
+	--disable-debug       \
+	--disable-profiling   \
+	--enable-owshell      \
+	--enable-owlib        \
+	--enable-ownetlib     \
+	--enable-i2c          \
+	--enable-owhttpd      \
+	--enable-owftpd       \
+	--enable-owserver     \
+	--enable-owexternal   \
+	--enable-ownet        \
+	--enable-owtap        \
+	--disable-owmalloc    \
+	--disable-owtraffic   \
+	--enable-owmon        \
+	--enable-owcapi       \
+	--enable-swig         \
+	--disable-owperl       \
+	--disable-owphp        \
+	--enable-owpython     \
+	--disable-owtcl        \
+	--enable-owfs         \
+	--enable-zero         \
+	--enable-usb          \
+	--enable-parport
 
-CFLAGS = -Wall -g
-
-ifneq (,$(findstring noopt,$(DEB_BUILD_OPTIONS)))
-       CFLAGS += -O0
+DEB_HOST_ARCH_OS=$(shell dpkg-architecture -qDEB_HOST_ARCH_OS)
+ifeq ($(DEB_HOST_ARCH_OS),linux)
+CONFIGURE_OPTIONS += --enable-w1
 else
-       CFLAGS += -O2
+CONFIGURE_OPTIONS += --disable-w1
 endif
 
-config.status: configure
-       dh_testdir
-       sh ./bootstrap
-       # Add here commands to configure the package.
-       ./configure --host=$(DEB_HOST_GNU_TYPE) --build=$(DEB_BUILD_GNU_TYPE) --prefix=/usr --mandir=\$${prefix}/share/man --infodir=\$${prefix}/share/info CFLAGS="$(CFLAGS)" LDFLAGS="-Wl,-z,defs"
+%:
+	dh $@ $(DH_OPTIONS)
 
+.PHONY: override_dh_auto_configure override_dh_auto_test override_dh_install
+override_dh_auto_configure:
+	autoreconf -vif
+	dh_auto_configure -- $(CONFIGURE_OPTIONS)
 
-#Architecture
-build: build-arch build-indep
+override_dh_auto_test:
+	# no tests available
 
-build-arch: build-arch-stamp
-build-arch-stamp:  config.status
+override_dh_auto_install:
+	dh_auto_install
+	# do not install partial manpage with generic names. Instead, include
+	# text directly in manpages and remove them.
+	cd debian/tmp/usr/share/man && \
+	for manfile in $$(find . -iname "*.[135]") ; do \
+		for i in $$(sed -n '2,$$ s/^.so //p' $$manfile | tac); do \
+			printf "%s\n" H /$$(echo "$$i" | sed -e 's,/,\\/,g')/d - ".r ./$$i" ",w" \
+				| ed -s $$manfile  ; \
+		done ; \
+	done
+	find debian/tmp/usr/share/man -iname "*.[135n]so" -exec $(RM) {} \;
 
-       # Add here commands to compile the arch part of the package.
-       #$(MAKE)
-       touch $@
+override_dh_install:
+	dh_install --list-missing -X.la -Xperllocal.pod
 
-build-indep: build-indep-stamp
-build-indep-stamp:  config.status
+.PHONY: override_dh_strip override_dh_makeshlibs
+override_dh_strip:
+	dh_strip --dbg-package=owfs-dbg
 
-       # Add here commands to compile the indep part of the package.
-       #$(MAKE) doc
-       touch $@
+override_dh_makeshlibs:
+	dh_makeshlibs --no-package libow-php5 --no-package libow-tcl
+	#echo "php:Depends=phpapi-$$(php-config5 --phpapi)" >> debian/libow-php5.substvars
 
 clean:
-       dh_testdir
-       dh_testroot
-       rm -f build-arch-stamp build-indep-stamp config.status
+	dh clean $(DH_OPTIONS)
+	# remove autoreconf modifications
+	find . -name Makefile.am | while read f ; do \
+		$(RM) "$$(dirname "$$f")/$$(basename "$$f" .am).in" ; \
+	done
+	$(RM) INSTALL aclocal.m4 configure
+	find src/scripts/install -type f -a ! -name "config*" -a -exec rm -v {} \;
+	$(RM) module/owcapi/src/example++/Makefile \
+		module/owcapi/src/example/Makefile \
+		module/ownet/c/src/example/Makefile \
+		module/ownet/php/examples/ownet_example.php \
+		module/swig/php/example/load_php_OW.php \
+		module/swig/perl5/OW/Makefile.linux \
+		module/swig/perl5/OW/Makefile.osx
+	# if this is a git repository, restore removed files that would have
+	# been ignored by dpkg-source
+	-test -d .git && git checkout -- $$(git status --porcelain | \
+		sed -e '/^ D /s/^ D //p;d' | grep -v '^debian/')
+	:
 
-       # Add here commands to clean up after the build process.
-       -$(MAKE) distclean
-ifneq "$(wildcard /usr/share/misc/config.sub)" ""
-       cp -f /usr/share/misc/config.sub config.sub
-endif
-ifneq "$(wildcard /usr/share/misc/config.guess)" ""
-       cp -f /usr/share/misc/config.guess config.guess
-endif
-       dh_clean
+override_dh_shlibdeps:
+	dh_shlibdeps -a -- --warnings=7
 
-install: install-indep install-arch
-install-indep:
-       # nothing to do
-
-install-arch:
-       dh_testdir
-       dh_testroot
-       dh_clean -k
-       dh_installdirs
-
-       $(MAKE) DESTDIR=$(CURDIR)/debian/tmp install
-
-       dh_movefiles
-
-       dh_installchangelogs ChangeLog
-       dh_installdocs
-       dh_installexamples
-       dh_pycentral -ppython-1wire
-       dh_perl
-       dh_installinit
-       dh_installman
-       dh_link
-       dh_strip --dbg-package=1wire-dbg
-       dh_compress
-       dh_fixperms
-       dh_makeshlibs
-       dh_installdeb
-       dh_shlibdeps
-       dh_gencontrol
-       dh_md5sums
-       dh_builddeb
-# Build architecture independant packages using the common target.
-binary-indep: build-indep install-indep
-
-# Build architecture dependant packages using the common target.
-binary-arch: build-arch install-arch
-
-binary: binary-arch binary-indep
-.PHONY: build clean binary-indep binary-arch binary install install-indep install-arch

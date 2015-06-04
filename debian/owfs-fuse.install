@@ -1,0 +1,3 @@
+usr/bin/owfs	usr/lib/owfs
+debian/wrappers/owfs	usr/bin
+usr/share/man/man1/owfs.1

@@ -231,8 +231,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "Owtcl" TCL "20/January/2005" "Tcl"
-.HS table tk
+.TH OWTCL 3 2005-01-20 "Tcl"
 .BS
 .SH NAME
 Owtcl \- OWFS library access commands for Tcl

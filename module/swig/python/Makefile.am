@@ -8,15 +8,18 @@ LIBOW = ../../owlib/src/c/libow.la
 ow_wrap.c: ../ow.i ${LIBOW}
 	$(SWIG) -python -o $@ ../ow.i
 
-OW.py: ow_wrap.c setup.py
-	LDFLAGS="$(PYLDFLAGS) ${PTHREAD_LIBS} ${LIBUSB_LIBS} ${LD_EXTRALIBS}" CFLAGS="$(PYCFLAGS) $(PIC_FLAGS)" $(PYTHON) setup.py build
-#	$(PYTHON) setup.py build
+OW.py: ow_wrap.c setup.py $(LIBOW)
+	set -e ; set -x ; for p in $$(pyversions -r ../../../debian/control) ; do \
+		CFLAGS="" $$p setup.py build ; \
+	done
 
 install-data-local:
 #	OpenSUSE is buggy and install libraries at /usr/local.
 #	Need to add call "install_lib --install-dir" or call "install --install-lib"
 #	$(PYTHON) setup.py install_lib --install-dir="/$(DESTDIR)$(PYSITEDIR)"
-	$(PYTHON) setup.py install --install-lib="$(DESTDIR)$(PYSITEDIR)"
+	set -e ; set -x ; for p in $$(pyversions -r ../../../debian/control) ; do \
+		$$p setup.py install --install-layout=deb --root=$(DESTDIR) ; \
+	done
 # Other options are (but not needed): --install-data="/$(DESTDIR)$(PYSITEDIR)" --install-script="/$(DESTDIR)$(PYSITEDIR)" --install-header=
 
 clean-local:

@@ -1,0 +1,14 @@
+usr/include/owcapi.h
+usr/include/owfs_config.h
+#usr/lib/*/lib*.a
+usr/lib/*/libow.so
+usr/lib/*/libowcapi.so
+#usr/lib/*/pkgconfig/*
+#usr/share/pkgconfig/*
+usr/share/man/man1/owcapi.1
+usr/share/man/man1/libowcapi.1
+
+module/owcapi/src/example/owcapiexample.c usr/share/doc/libowfs-dev/examples/owcapi/C
+module/owcapi/src/example/Makefile usr/share/doc/libowfs-dev/examples/owcapi/C
+module/owcapi/src/example++/owcapiexample.cpp usr/share/doc/libowfs-dev/examples/owcapi/C++
+module/owcapi/src/example++/Makefile usr/share/doc/libowfs-dev/examples/owcapi/C++

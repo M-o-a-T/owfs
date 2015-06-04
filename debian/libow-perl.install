@@ -1,0 +1,5 @@
+#!/usr/bin/perl -w
+
+use Config;
+print substr($Config{vendorarch}, 1) . "\n";
+print "usr/share/man/man3/owperl.3\n";

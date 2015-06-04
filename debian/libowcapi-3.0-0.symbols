@@ -1,0 +1,14 @@
+libowcapi-3.0.so.0 libowcapi-3.0-0 #MINVER#
+* Build-Depends-Package: libowfs-dev
+ OW_finish@Base 2.8p4
+ OW_get@Base 2.8p4
+ OW_init@Base 2.8p4
+ OW_init_args@Base 2.8p4
+ OW_lread@Base 2.8p4
+ OW_lwrite@Base 2.8p4
+ OW_present@Base 2.8p4
+ OW_put@Base 2.8p4
+ OW_safe_init@Base 2.9p5
+ OW_safe_init_args@Base 2.9p5
+ OW_set_error_level@Base 2.8p4
+ OW_set_error_print@Base 2.8p4

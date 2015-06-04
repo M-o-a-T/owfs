@@ -17,6 +17,9 @@ $Id$
 
 #include "owfs.h"
 #include "ow_connection.h"
+#ifdef __FreeBSD_kernel__
+#include "sys/param.h"
+#endif
 #include "sys/mount.h"
 
 /*

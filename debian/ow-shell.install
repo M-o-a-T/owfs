@@ -1,0 +1,13 @@
+usr/bin/owdir
+usr/bin/owget
+usr/bin/owread
+usr/bin/owwrite
+usr/bin/owpresent
+usr/bin/owexist
+usr/share/man/man1/owshell.1
+usr/share/man/man1/owdir.1
+usr/share/man/man1/owget.1
+usr/share/man/man1/owread.1
+usr/share/man/man1/owwrite.1
+usr/share/man/man1/owpresent.1
+usr/share/man/man1/owexist.1
