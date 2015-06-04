@@ -1,3 +1,9 @@
+owfs (3.0p0+git1-ba7b185-2) unstable; urgency=medium
+
+  * Merge to current git
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Thu, 04 Jun 2015 12:09:35 +0200
+
 owfs (3.0p0-2) unstable; urgency=medium
 
   * include MoaT device

@@ -131,7 +131,7 @@ int main(int argc, char *argv[])
 
 	// Unmount just in case
 	// No checks -- can fail without consequences
-#ifdef __FreeBSD_kernel__
+#ifdef __FreeBSD__
 	unmount( Outbound_Control.head->name, 0) ;
 #else
 	umount( Outbound_Control.head->name ) ;
