@@ -8,31 +8,41 @@
     1wire/iButton system from Dallas Semiconductor
 */
 
+// regex
+
 /* ow_opt -- owlib specific command line options processing */
 
 #include <config.h>
 #include "owfs_config.h"
 #include "ow.h"
 #include "ow_connection.h"
+#include "ow_usb_msg.h" // for DS9490_port_setup
 
-enum arg_address { arg_addr_device, arg_addr_null, arg_addr_ip, arg_addr_colon, arg_addr_number, arg_addr_other } ;
+enum arg_address { arg_addr_device, arg_addr_null, arg_addr_ip, arg_addr_colon, arg_addr_number, arg_addr_other, arg_addr_error, } ;
 
 static enum arg_address ArgType( const char * arg )
 {
+	static regex_t rx_dev ;
+	static regex_t rx_num ;
+	static regex_t rx_ip ;
+	static regex_t rx_col ;
+	
+	// compile regex expressions
+	ow_regcomp( &rx_dev, "/", REG_NOSUB ) ;
+	ow_regcomp( &rx_num, "^[:digit:]+$", REG_NOSUB ) ;
+	ow_regcomp( &rx_ip, "[:digit:]{1,3}\\.[:digit:]{1,3}\\.[:digit:]{1,3}\\.[:digit:]{1,3}", REG_NOSUB ) ;
+	ow_regcomp( &rx_col, ":", REG_NOSUB ) ;
+
 	if ( arg == NULL ) {
 		return arg_addr_null ;
-	} else if ( strchr( arg, '/' ) ) {
-		return arg_addr_device ;
-	} else if ( strchr( arg, ':' ) ) {
-		return arg_addr_colon ;
-	} else if ( strspn( arg, "0123456789" ) == strlen(arg) ) {
-		return arg_addr_number ;
-	} else if ( strchr(                     arg,                      '.' )
-		&&  strchr( strchr(                 arg,               '.' ), '.' )
-		&&  strchr( strchr( strchr(         arg,        '.' ), '.' ), '.' )
-		&&  strchr( strchr( strchr( strchr( arg, '.' ), '.' ), '.' ), '.' )
-		) {
+	} else if ( ow_regexec( &rx_ip, arg, NULL ) == 0 ) {
 		return arg_addr_ip ;
+	} else if ( ow_regexec( &rx_col, arg, NULL ) == 0 ) {
+		return arg_addr_colon ;
+	} else if ( ow_regexec( &rx_dev, arg, NULL ) == 0 ) {
+		return arg_addr_device ;
+	} else if ( ow_regexec( &rx_num, arg, NULL ) == 0 ) {
+		return arg_addr_number ;
 	}
 	return arg_addr_other ;
 }
@@ -54,6 +64,7 @@ static GOOD_OR_BAD Serial_or_telnet( const char * arg, struct connection_in * in
 {
 	switch( ArgType(arg) ) {
 		case arg_addr_null:
+		case arg_addr_error:
 			LEVEL_DEFAULT("Error with device. Specify a serial port, or a serial-over-telnet network address");
 			return gbBAD ;
 		case arg_addr_device:
@@ -237,6 +248,38 @@ GOOD_OR_BAD ARG_HA7E(const char *arg)
 	return Serial_or_telnet( arg, in ) ;
 }
 
+GOOD_OR_BAD ARG_DS1WM(const char *arg)
+{
+	struct port_in * pin = NewPort( NULL ) ;
+	struct connection_in * in ;
+	if ( pin == NULL ) {
+		return gbBAD;
+	}
+	in = pin->first ;
+	if (in == NO_CONNECTION) {
+		return gbBAD;
+	}
+	arg_data(arg,pin) ;
+	pin->busmode = bus_ds1wm ;
+	return gbGOOD ;
+}
+
+GOOD_OR_BAD ARG_K1WM(const char *arg)
+{
+	struct port_in * pin = NewPort( NULL ) ;
+	struct connection_in * in ;
+	if ( pin == NULL ) {
+		return gbBAD;
+	}
+	in = pin->first ;
+	if (in == NO_CONNECTION) {
+		return gbBAD;
+	}
+	arg_data(arg,pin) ;
+	pin->busmode = bus_k1wm ;
+	return gbGOOD ;
+}
+
 GOOD_OR_BAD ARG_ENET(const char *arg)
 {
 	struct port_in * pin = NewPort( NULL ) ;
@@ -336,28 +379,6 @@ GOOD_OR_BAD ARG_W1_monitor(void)
 	arg_data("W1 bus monitor",pin) ;
 	pin->busmode = bus_w1_monitor;
 	return gbGOOD;
-}
-
-GOOD_OR_BAD ARG_USB_monitor(const char *arg)
-{
-#if OW_USB
-	struct port_in * pin = NewPort( NULL ) ;
-	struct connection_in * in ;
-	if ( pin == NULL ) {
-		return gbBAD;
-	}
-	in = pin->first ;
-	if (in == NO_CONNECTION) {
-		return gbBAD;
-	}
-	arg_data(arg,pin) ;
-	pin->busmode = bus_usb_monitor;
-	return gbGOOD;
-#else
-	(void) arg ;
-	fprintf(stderr, "OWFS is compiled without USB support.\n");
-	return gbBAD;
-#endif
 }
 
 GOOD_OR_BAD ARG_Browse(void)
@@ -491,18 +512,24 @@ GOOD_OR_BAD ARG_Tester(const char *arg)
 GOOD_OR_BAD ARG_USB(const char *arg)
 {
 #if OW_USB
-	struct port_in * pin = NewPort( NULL ) ;
-	struct connection_in * in ;
-	if ( pin == NULL ) {
-		return gbBAD;
+	if ( Globals.luc != NULL ) {
+		struct port_in * pin = NewPort( NULL ) ;
+		struct connection_in * in ;
+		if ( pin == NULL ) {
+			return gbBAD;
+		}
+		in = pin->first ;
+		if (in == NO_CONNECTION) {
+			return gbBAD;
+		}
+		pin->busmode = bus_usb;
+		DS9490_port_setup( NULL, pin ) ; // flag as not yet set up
+		arg_data(arg,pin) ;
+		return gbGOOD;
+	} else {
+		LEVEL_DEFAULT( "USB library initialization had problems -- can't proceed") ;
+		return gbBAD ;
 	}
-	in = pin->first ;
-	if (in == NO_CONNECTION) {
-		return gbBAD;
-	}
-	pin->busmode = bus_usb;
-	arg_data(arg,pin) ;
-	return gbGOOD;
 #else							/* OW_USB */
 	(void) arg ;
 	LEVEL_DEFAULT("USB support (intentionally) not included in compilation. Check LIBUSB, then reconfigure and recompile.");
@@ -527,3 +554,4 @@ GOOD_OR_BAD ARG_Xport(const char *arg)
 	pin->type = ct_telnet ; // network
 	return gbGOOD;
 }
+

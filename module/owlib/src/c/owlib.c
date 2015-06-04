@@ -33,7 +33,7 @@ GOOD_OR_BAD LibStart(void* v)
 	if ( OW_Load_dnssd_library() == 0 ) {
 		Globals.zero = zero_bonjour ;
 	}
-#endif
+#endif /* OW_ZERO */
 
 	/* Initialize random number generator, make sure fake devices get the same
 	 * id each time */
@@ -172,6 +172,20 @@ static GOOD_OR_BAD SetupSingleInboundConnection( struct port_in * pin )
 	case bus_ha7e:
 		if ( BAD( HA7E_detect(pin) )) {
 			LEVEL_CONNECT("Cannot detect an HA7E/HA7S on %s", DEVICENAME(in));
+			return gbBAD ;
+		}
+		break;
+
+	case bus_ds1wm:
+		if ( BAD( DS1WM_detect(pin) )) {
+			LEVEL_CONNECT("Cannot detect an DS1WM synthesized bus master at %s", DEVICENAME(in));
+			return gbBAD ;
+		}
+		break;
+
+	case bus_k1wm:
+		if ( BAD( K1WM_detect(pin) )) {
+			LEVEL_CONNECT("Cannot detect an K1WM synthesized bus master at %s", DEVICENAME(in));
 			return gbBAD ;
 		}
 		break;

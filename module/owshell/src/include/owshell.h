@@ -179,7 +179,6 @@ struct global {
 	int announce_off;			// use zeroconf?
 	struct antiloop Token;
 	int readonly;
-	int max_clients;			// for ftp
 	int autoserver;
 	int quiet ;
 	int trim ;
@@ -273,7 +272,7 @@ void OW_Browse(void);
 
 void Server_detect(void);
 int ServerRead(ASCII * path);
-int ServerWrite(ASCII * path, ASCII * data);
+int ServerWrite(ASCII * path, ASCII * data, int size);
 int ServerDir(ASCII * path);
 int ServerDirall(ASCII * path);
 int ServerPresence(ASCII * path);

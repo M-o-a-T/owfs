@@ -111,10 +111,6 @@ const struct option owopts_long[] = {
 	{"error-level", required_argument, NO_LINKED_VAR, e_error_level},
 	{"errorlevel", required_argument, NO_LINKED_VAR, e_error_level},
 	{"debug", no_argument, NO_LINKED_VAR, e_debug},
-	{"concurrent_connections", required_argument, NO_LINKED_VAR, e_concurrent_connections},
-	{"concurrent-connections", required_argument, NO_LINKED_VAR, e_concurrent_connections},
-	{"max-connections", required_argument, NO_LINKED_VAR, e_concurrent_connections},
-	{"max_connections", required_argument, NO_LINKED_VAR, e_concurrent_connections},
 	{"cache_size", required_argument, NO_LINKED_VAR, e_cache_size},	/* max cache size */
 	{"cache-size", required_argument, NO_LINKED_VAR, e_cache_size},	/* max cache size */
 	{"cachesize", required_argument, NO_LINKED_VAR, e_cache_size},	/* max cache size */
@@ -130,6 +126,10 @@ const struct option owopts_long[] = {
 
 	{"passive", required_argument, NO_LINKED_VAR, e_passive},	/* DS9097 passive */
 	{"PASSIVE", required_argument, NO_LINKED_VAR, e_passive},	/* DS9097 passive */
+	{"ds1wm", required_argument, NO_LINKED_VAR, e_ds1wm},	/* DS1WM synthesizable adapters */
+	{"DS1WM", required_argument, NO_LINKED_VAR, e_ds1wm},	/* DS1WM synthesizable adapters */
+	{"k1wm", required_argument, NO_LINKED_VAR, e_k1wm},	/* DS1WM synthesizable adapters */
+	{"K1WM", required_argument, NO_LINKED_VAR, e_k1wm},	/* DS1WM synthesizable adapters */
 	{"i2c", optional_argument, NO_LINKED_VAR, e_i2c},	/* i2c adapters */
 	{"I2C", optional_argument, NO_LINKED_VAR, e_i2c},	/* i2c adapters */
 	{"HA7", optional_argument, NO_LINKED_VAR, e_ha7},	/* HA7Net */
@@ -197,8 +197,6 @@ const struct option owopts_long[] = {
 	{"USB_flextime", no_argument, &Globals.usb_flextime, 1},
 	{"usb_regulartime", no_argument, &Globals.usb_flextime, 0},
 	{"USB_regulartime", no_argument, &Globals.usb_flextime, 0},
-	{"usb_scan", optional_argument, NO_LINKED_VAR, e_usb_monitor,},
-	{"USB_scan", optional_argument, NO_LINKED_VAR, e_usb_monitor,},
 	{"serial_flex", no_argument, &Globals.serial_flextime, 1},
 	{"serial_flextime", no_argument, &Globals.serial_flextime, 1},
 	{"serial_regulartime", no_argument, &Globals.serial_flextime, 0},
@@ -746,10 +744,6 @@ GOOD_OR_BAD owopt(const int option_char, const char *arg)
 		Globals.error_level = 9 ;
 		Globals.error_level_restore = 9 ;
 		break ;
-	case e_concurrent_connections:
-		RETURN_BAD_IF_BAD(OW_parsevalue_I(&arg_to_integer, arg)) ;
-		Globals.concurrent_connections = (int) arg_to_integer;
-		break;
 	case e_cache_size:
 		RETURN_BAD_IF_BAD(OW_parsevalue_I(&arg_to_integer, arg)) ;
 		Globals.cache_size = (size_t) arg_to_integer;
@@ -822,8 +816,10 @@ GOOD_OR_BAD owopt(const int option_char, const char *arg)
 		return ARG_MasterHub(arg);
 	case e_w1_monitor:
 		return ARG_W1_monitor();
-	case e_usb_monitor:
-		return ARG_USB_monitor(arg);
+	case e_ds1wm:
+		return ARG_DS1WM(arg);
+	case e_k1wm:
+		return ARG_K1WM(arg);
 	case e_browse:
 		return ARG_Browse();
 	case e_announce:
