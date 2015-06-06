@@ -85,11 +85,20 @@ typedef enum {
 #define CFG_MAX CFG_MAX
 } cfg_type;
 
+<<<<<<< moat
 /*
     M_INFO: basic data about the device.
 	Write: 1 byte: data type to get details for.
 	Read (all): length of structure, type-specific bytes, 16bit CRC.
 */
+=======
+/* Status */
+typedef enum {
+    S_reboot,
+    S_max
+#define STATUS_MAX S_max
+} t_status_nr;
+>>>>>>> local
 
 /*
 	Data for M_INFO: send a byte with those bits set that correspond to a

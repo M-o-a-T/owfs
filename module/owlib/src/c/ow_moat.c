@@ -210,12 +210,13 @@ static enum e_visibility FS_show_one_config( const struct parsedname * pn )
 static enum e_visibility FS_show_s_entry( const struct parsedname * pn )
 {
 	BYTE buf[M_MAX];
-	if (pn->selected_filetype->data.u >= M_MAX)
+	int u = pn->selected_filetype ? pn->selected_filetype->data.u : pn->subdir->data.u;
+	if (u >= M_MAX)
 		return visible_never;
 
 	if(BAD(OW_r_features(buf, pn)))
 		return visible_not_now;
-	if (!buf[pn->selected_filetype->data.u])
+	if (!buf[u])
 		return visible_not_now;
 
 	return visible_now;
@@ -459,6 +460,65 @@ static ZERO_OR_ERROR FS_r_alarm_sources(struct one_wire_query *owq)
     return OWQ_format_output_offset_and_size((const char *)buf, len ? len-1 : 0, owq);
 }
 
+<<<<<<< moat
+=======
+static ZERO_OR_ERROR FS_r_alarm_status(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    unsigned char buf[256];
+    size_t len = 0;
+	BYTE b[3+((STATUS_MAX+7)>>3)];
+    size_t blen = sizeof(b);
+	unsigned int i;
+
+	RETURN_BAD_IF_BAD( OW_r_std(b, &blen, M_ALERT, M_STATUS, pn) );
+
+	for (i=0;i<blen*8;i++) {
+		if (b[i>>3] & (1<<(i&7))) {
+			if (i < STATUS_MAX)
+				len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%s,", s_names[i]);
+			else
+				len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%d,", i+1);
+		}
+	}
+
+    return OWQ_format_output_offset_and_size((const char *)buf, len ? len-1 : 0, owq);
+}
+
+static ZERO_OR_ERROR FS_r_status_reboot(struct one_wire_query *owq)
+{
+    const char *res = "unknown";
+	BYTE buf[1];
+    size_t len = sizeof(buf);
+	char sbuf[10];
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_STATUS, 1, PN(owq)));
+	if (len >= 1) {
+		switch(*buf) {
+		case S_boot_watchdog:
+			res = "watchdog";
+			break;
+		case S_boot_brownout:
+			res = "brownout";
+			break;
+		case S_boot_external:
+			res = "external";
+			break;
+		case S_boot_powerup:
+			res = "powerup";
+			break;
+		default:
+			snprintf(sbuf,sizeof(sbuf),"?.x%02x",*buf);
+			res = sbuf;
+			break;
+		}
+	} else
+		res = "?.empty";
+
+    return OWQ_format_output_offset_and_size(res, strlen(res), owq);
+}
+
+>>>>>>> local
 static ZERO_OR_ERROR FS_r_console(struct one_wire_query *owq)
 {
     BYTE buf[256];
