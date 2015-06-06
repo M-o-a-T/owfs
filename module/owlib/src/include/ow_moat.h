@@ -80,7 +80,7 @@ typedef enum {
 	CFG_RF12,     // reserved for radio
 	CFG_CRYPTO,   // reserved
 	CFG_OWID,     // this device's 1wire ID
-	CFG_TYPE,     // kkkk
+	CFG_TYPE,     // Device configuration data
 	CFG_NAME,     // device name
 	CFG_MAX,
 #define CFG_MAX CFG_MAX
@@ -88,14 +88,16 @@ typedef enum {
 
 /* Status */
 typedef enum {
-    S_reboot = 1,
+    S_reboot,
     S_max
 #define STATUS_MAX S_max
 } t_status_nr;
 
+#ifdef MOAT_NAMES
 static const char *s_names[] = { /* status, starting with #1 */
 	"reboot",
 };
+#endif
 
 /* reason for reset */
 typedef enum {
