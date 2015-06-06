@@ -1,3 +1,9 @@
+owfs (3.1p0+git1-ba7b185-3) smurf; urgency=medium
+
+  * Status fix
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Sat, 06 Jun 2015 19:38:16 +0200
+
 owfs (3.1p0+git1-ba7b185-1) unstable; urgency=medium
 
   * Don't forget to tag your releases!
