@@ -57,9 +57,13 @@ endif
 
 .PHONY: override_dh_auto_configure override_dh_auto_test override_dh_install
 override_dh_auto_configure:
-	test -s src/scripts/install/missing || sh bootstrap
+	test -s owfs/src/scripts/install/missing || sh bootstrap
 	autoreconf -vif
 	dh_auto_configure -- $(CONFIGURE_OPTIONS)
+
+override_dh_auto_clean: 
+	test -s owfs/src/scripts/install/missing || sh bootstrap
+	dh_auto_clean
 
 override_dh_auto_test:
 	# no tests available
