@@ -1,2 +1,3 @@
 usr/bin/owhttpd
 usr/share/man/man1/owhttpd.1
+lib/systemd/system/owhttpd.service

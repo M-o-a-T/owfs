@@ -1,3 +1,5 @@
 usr/bin/owserver
 usr/bin/owexternal
 usr/share/man/man1/owserver.1
+lib/systemd/system/owserver.service
+lib/systemd/system/owserver.socket

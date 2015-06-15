@@ -1,2 +1,3 @@
 usr/bin/owftpd
 usr/share/man/man1/owftpd.1
+lib/systemd/system/owftpd.service
