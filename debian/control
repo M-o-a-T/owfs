@@ -2,9 +2,10 @@ Source: owfs
 Priority: extra
 Maintainer: Vincent Danjean <vdanjean@debian.org>
 Build-Depends: debhelper (>= 9~), quilt, autotools-dev,
- libfuse-dev, swig, python-all-dev (>= 2.6.6-3~), libusb-dev,
+ libfuse-dev, swig, python-all-dev (>= 2.6.6-3~),
+ libusb-1.0-0-dev,
  ed, systemd [linux-any], groff-base, dh-systemd,
- libtool, autoconf, automake, pkg-config
+ libtool, autoconf, automake, pkg-config,
 Standards-Version: 3.9.6
 Section: electronics
 Homepage: http://owfs.org/
