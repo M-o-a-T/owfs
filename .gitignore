@@ -112,3 +112,9 @@ config.guess
 config.sub
 install-sh
 *.m4
+/src/scripts/install
+/module/swig/perl5/OW/MYMETA.json
+/module/swig/perl5/OW/MYMETA.yml
+/src/include/config.h.in~
+/src/man/mann/owtcl.3
+/INSTALL
