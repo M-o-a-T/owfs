@@ -221,6 +221,9 @@ static enum e_visibility FS_show_one_config( const struct parsedname * pn )
 static enum e_visibility FS_show_s_entry( const struct parsedname * pn )
 {
 	BYTE buf[M_MAX];
+	if(IsDir(pn))
+		return visible_now;
+
 	if (pn->selected_filetype->data.u >= M_MAX)
 		return visible_never;
 
