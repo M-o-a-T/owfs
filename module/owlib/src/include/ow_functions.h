@@ -86,6 +86,7 @@ BYTE CRC8seeded(const BYTE * bytes, const size_t length, const UINT seed);
 BYTE CRC8compute(const BYTE * bytes, const size_t length, const UINT seed);
 int CRC16(const BYTE * bytes, const size_t length);
 int CRC16seeded(const BYTE * bytes, const size_t length, const UINT seed);
+UINT CRC16compute(const BYTE * bytes, const size_t length, const UINT seed);
 BYTE char2num(const char *s);
 BYTE string2num(const char *s);
 char num2char(const BYTE n);
