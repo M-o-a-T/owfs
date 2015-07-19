@@ -51,6 +51,7 @@ typedef enum {
 	M_PID,    // basic parameterizable controller
 	M_SMOKE,  // smoke detector
 	M_MAX,
+	M_LOADER=0xFF
 #define M_MAX M_MAX
 } m_type;
 
@@ -82,13 +83,16 @@ typedef enum {
 	CFG_OWID,     // this device's 1wire ID
 	CFG_TYPE,     // Device configuration data
 	CFG_NAME,     // device name
+	CFG_LOADER,   // data for rewritable firmware
 	CFG_MAX,
 #define CFG_MAX CFG_MAX
 } cfg_type;
 
 /* Status */
 typedef enum {
+	_S_bitmap,
     S_reboot,
+    S_loader,
     S_max
 #define STATUS_MAX S_max
 } t_status_nr;
@@ -96,6 +100,7 @@ typedef enum {
 #ifdef MOAT_NAMES
 static const char *s_names[] = { /* status, starting with #1 */
 	"reboot",
+	"loader",
 };
 #endif
 

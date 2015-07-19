@@ -41,11 +41,14 @@ READ_FUNCTION(FS_r_alarm_two);
 READ_FUNCTION(FS_r_alarm_sources);
 READ_FUNCTION(FS_r_alarm_status);
 READ_FUNCTION(FS_r_status_reboot);
+READ_FUNCTION(FS_r_hex);
+READ_FUNCTION(FS_r_loader);
 WRITE_FUNCTION(FS_w_raw);
 WRITE_FUNCTION(FS_w_port);
 WRITE_FUNCTION(FS_w_pwm);
 WRITE_FUNCTION(FS_w_adc);
 WRITE_FUNCTION(FS_w_console);
+WRITE_FUNCTION(FS_w_hex);
 VISIBLE_FUNCTION(FS_show_config);
 VISIBLE_FUNCTION(FS_show_one_config);
 VISIBLE_FUNCTION(FS_show_entry);
@@ -134,6 +137,9 @@ static struct filetype MOAT[] = {
 	{"raw/pid", 255, &maxports, ft_binary, fc_uncached, FS_r_raw, FS_w_raw, FS_show_entry, {.u=M_PID,}, },
 	{"raw/pids", 255, NON_AGGREGATE, ft_binary, fc_uncached, FS_r_raw_zero, NO_WRITE_FUNCTION, FS_show_s_entry, {.u=M_PID,}, },
 
+	{"loader", PROPERTY_LENGTH_SUBDIR, NON_AGGREGATE, ft_subdir, fc_subdir, NO_READ_FUNCTION, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
+	{"loader/attr", 255, NON_AGGREGATE, ft_vascii, fc_static, FS_r_loader, NO_WRITE_FUNCTION, FS_show_one_config, {.u=CFG_LOADER,}, },
+	{"loader/data", 255, &maxports, ft_vascii, fc_uncached, FS_r_hex, FS_w_hex, VISIBLE, {.u=CFG_LOADER,}, },
 };
 
 DeviceEntryExtended(F0, MOAT, DEV_alarm, NO_GENERIC_READ, NO_GENERIC_WRITE);
@@ -334,6 +340,42 @@ static ZERO_OR_ERROR FS_r_pwm(struct one_wire_query *owq)
     return OWQ_format_output_offset_and_size(obuf, olen, owq);
 }
 
+static char hex[]="0123456789ABCDEF";
+
+static ZERO_OR_ERROR FS_r_hex(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    BYTE buf[128],*bp=buf;
+    size_t len = sizeof(buf);
+    char obuf[260],*obp=obuf;
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, pn->selected_filetype->data.u, pn->extension, pn));
+
+	while(len--) {
+		*obp++ = hex[*bp >> 4];
+		*obp++ = hex[*bp & 0x0F];
+		bp++;
+	}
+	*obp = 0;
+    return OWQ_format_output_offset_and_size(obuf, obp-obuf, owq);
+}
+
+static ZERO_OR_ERROR FS_r_loader(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+    BYTE buf[3];
+    size_t len = sizeof(buf);
+    char obuf[20];
+    size_t olen;
+
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, pn->selected_filetype->data.u, pn->extension, pn));
+	if (len != sizeof(buf))
+		return -EINVAL;
+
+	olen = snprintf(obuf,sizeof(obuf), "%d,%d,%d", buf[0],buf[1],buf[2]);
+    return OWQ_format_output_offset_and_size(obuf, olen, owq);
+}
+
 static ZERO_OR_ERROR FS_r_adc(struct one_wire_query *owq)
 {
 	struct parsedname *pn = PN(owq);
@@ -501,7 +543,7 @@ static ZERO_OR_ERROR FS_r_status_reboot(struct one_wire_query *owq)
     size_t len = sizeof(buf);
 	char sbuf[10];
 
-	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_STATUS, 1, PN(owq)));
+	RETURN_ERROR_IF_BAD( OW_r_std(buf,&len, M_STATUS, S_reboot, PN(owq)));
 	if (len >= 1) {
 		switch(*buf) {
 		case S_boot_watchdog:
@@ -573,6 +615,43 @@ static ZERO_OR_ERROR FS_w_raw(struct one_wire_query *owq)
 		return -EINVAL;
 
 	return GB_to_Z_OR_E( OW_w_std( buf,len, pn->selected_filetype->data.u, pn->extension, pn) ) ;
+}
+
+static ZERO_OR_ERROR FS_w_hex(struct one_wire_query *owq)
+{
+	struct parsedname *pn = PN(owq);
+	BYTE *buf = (BYTE *) OWQ_buffer(owq);
+    size_t len = OWQ_size(owq);
+	BYTE *obuf = alloca(len/2+1);
+	BYTE *obp = obuf;
+
+	if (OWQ_offset(owq) != 0)
+		return -EINVAL; /* ignore? */
+
+	while(len--) {
+		if (buf[0]>='0' && buf[0]<='9')
+			*obp = (buf[0]-'0')<<4;
+		else if (buf[0]>='a' && buf[0]<='f')
+			*obp = (buf[0]-'a'+10)<<4;
+		else if (buf[0]>='A' && buf[0]<='F')
+			*obp = (buf[0]-'A'+10)<<4;
+		else
+			break;
+		buf++; if(!len--) break;
+		if (buf[0]>='0' && buf[0]<='9')
+			*obp |= (buf[0]-'0')<<4;
+		else if (buf[0]>='a' && buf[0]<='f')
+			*obp |= (buf[0]-'a'+10)<<4;
+		else if (buf[0]>='A' && buf[0]<='F')
+			*obp |= (buf[0]-'A'+10)<<4;
+		else
+			break;
+		buf++; obp++;
+	}
+	if (pn->extension == EXTENSION_ALL || !pn->extension)
+		return -EINVAL;
+
+	return GB_to_Z_OR_E( OW_w_std( obuf,obp-obuf, pn->selected_filetype->data.u, pn->extension, pn) ) ;
 }
 
 static ZERO_OR_ERROR FS_w_port(struct one_wire_query *owq)
@@ -850,7 +929,7 @@ static GOOD_OR_BAD OW_r_statuses(BYTE *buf, const struct parsedname *pn)
 		size_t buflen = (M_MAX+7)/8;
 		memset(buf,0,buflen); // in case the remote's list is shorter
 
-		RETURN_BAD_IF_BAD( OW_r_std(buf, &buflen, M_STATUS, 0, pn) );
+		RETURN_BAD_IF_BAD( OW_r_std(buf, &buflen, M_STATUS, _S_bitmap, pn) );
 		Cache_Add_SlaveSpecific(buf, (M_MAX+7)/8, SlaveSpecificTag(STATUSES), pn);
 	}
 	return gbGOOD;
