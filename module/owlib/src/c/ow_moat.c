@@ -666,9 +666,11 @@ static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, co
 		TRXN_END,
 	};
 
+	BUSLOCK(pn);
+
 	LEVEL_DEBUG( "read: read len for %d %d",type,stype) ;
 	/* 0xFF means the device was too slow */
-	if ( BAD(BUS_transaction(tfirst, pn)) || len == 0xFF) {
+	if ( BAD(BUS_transaction_nolock(tfirst, pn)) || len == 0xFF) {
 		goto out_bad;
 	}
 	LEVEL_DEBUG( "read: got len %d",len) ;
@@ -703,7 +705,7 @@ static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, co
 		// if len=0, i.e. the remote sends no data at all, then just read the CRC.
 		// Else if len<=max, all OK, read all into buffer.
 		// Else if we want no data, read all into 
-		if ( BAD(BUS_transaction(len ? (len>maxlen) ? maxlen ? recv_buf_sup : recv_crc_sup : recv_buf : recv_crc, pn)) ) {
+		if ( BAD(BUS_transaction_nolock(len ? (len>maxlen) ? maxlen ? recv_buf_sup : recv_crc_sup : recv_buf : recv_crc, pn)) ) {
 			goto out_bad;
 		}
 
@@ -726,15 +728,17 @@ static GOOD_OR_BAD OW_r_std(BYTE *buf, size_t *buflen, BYTE type, BYTE stype, co
 		}
 		crcbuf[0] = ~crcbuf[0];
 		crcbuf[1] = ~crcbuf[1];
-		if ( BAD(BUS_transaction(xmit_crc, pn)) ) {
+		if ( BAD(BUS_transaction_nolock(xmit_crc, pn)) ) {
 			goto out_bad;
 		}
 		*buflen = len;
 	}
 
 	LEVEL_DEBUG( "read: GOOD, got %d",*buflen) ;
+	BUSUNLOCK(pn);
 	return ret;
 out_bad:
+	BUSUNLOCK(pn);
 	return gbBAD;
 }
 
@@ -764,8 +768,9 @@ static GOOD_OR_BAD OW_w_std(BYTE *buf, size_t size, BYTE type, BYTE stype, const
 	}
 
 	LEVEL_DEBUG( "write: %d for %d %d",size,type,stype) ;
-	
-	if ( BAD(BUS_transaction(tfirst, pn))) {
+	BUSLOCK(pn);
+
+	if ( BAD(BUS_transaction_nolock(tfirst, pn))) {
 		goto out_bad;
 	}
 
@@ -778,11 +783,13 @@ static GOOD_OR_BAD OW_w_std(BYTE *buf, size_t size, BYTE type, BYTE stype, const
 	LEVEL_DEBUG( "read CRC: GOOD, got %02x%02x",crcbuf[0],crcbuf[1]) ;
 	crcbuf[0] = ~crcbuf[0];
 	crcbuf[1] = ~crcbuf[1];
-	if ( BAD(BUS_transaction(xmit_crc, pn)) ) {
+	if ( BAD(BUS_transaction_nolock(xmit_crc, pn)) ) {
 		goto out_bad;
 	}
+	BUSUNLOCK(pn);
 	return gbGOOD;
 out_bad:
+	BUSUNLOCK(pn);
 	return gbBAD;
 }
 
