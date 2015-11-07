@@ -36,7 +36,7 @@ Ports, A/D converters, counters, and more
 ]]
 .SH FAMILY CODE
 .PP
-.I 12
+.I F0
 .SH SPECIAL PROPERTIES
 .SS port.1 ... port.N
 .I read-write, yes-no
