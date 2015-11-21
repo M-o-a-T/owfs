@@ -828,7 +828,7 @@ static GOOD_OR_BAD OW_temperature_ready( enum temperature_problem_flag accept_85
 			BUSLOCK(pn);
 			ret = BUS_transaction_nolock(tpowered, pn) || OW_poll_convert(pn);
 			BUSUNLOCK(pn);
-			RETURN_BAD_IF_BAD(ret)
+			RETURN_BAD_IF_BAD(ret);
 		}
 	} else {
 		// valid simultaneous, just delay if needed

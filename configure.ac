@@ -145,23 +145,6 @@ if test "$lt_prog_compiler_pic_works" = yes; then
 fi
 AC_SUBST(PIC_FLAGS)
 
-# Make sure tclConfig.sh is found under /usr/lib64/
-# Should perhaps support cross-compiling to other cpu-type too?
-LIBPOSTFIX=
-case "${host_os}" in
-	*linux* )
-	case "${host_cpu}" in
-		powerpc64 | s390x | x86_64 )
-		LIBPOSTFIX="64"
-		CFLAGS="$CFLAGS -m64"
-		;;
-	esac
-	;;
-esac
-AC_SUBST(LIBPOSTFIX)
-
-
-
 if test "$cross_compiling" != yes; then
 	OW_CHECK_NESTED_FUNCTIONS
 fi

@@ -128,6 +128,7 @@ OWLIB_SOURCE = ow_dl.c            \
                ow_masterhub.c     \
                ow_memblob.c       \
                ow_memory.c        \
+               ow_moat.c          \
                ow_multicast.c     \
                ow_name.c          \
                ow_net_client.c    \
