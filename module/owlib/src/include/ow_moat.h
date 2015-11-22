@@ -90,13 +90,9 @@ typedef enum {
 
 /* Status */
 typedef enum {
-<<<<<<< moat
-    S_reboot = 1,
-=======
 	_S_bitmap,
     S_reboot,
     S_loader,
->>>>>>> local
     S_max
 #define STATUS_MAX S_max
 } t_status_nr;
