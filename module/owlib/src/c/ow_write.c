@@ -91,7 +91,7 @@ SIZE_OR_ERROR FS_write_postparse(struct one_wire_query *owq)
 		return -EROFS;			// read-only invokation
 	}
 
-	if (IsDir(pn)) {
+	if (IsDir(pn) && !(BusIsServer(pn->selected_connection))) {
 		LEVEL_DEBUG("Attempt to write to a directory.");
 		return -EISDIR;			// not a file
 	}
@@ -193,7 +193,7 @@ static ZERO_OR_ERROR FS_write_real(int depth, struct one_wire_query *owq)
 		return -ENODEV ;
 	}
 
-	if ( ft->write == FS_w_alias ) {
+	if ( (ft != NO_FILETYPE) && (ft->write == FS_w_alias) ) {
 		// Special check for alias
 		// it's ok for fake and tester and mock as well
 		// so do this before the fake test
