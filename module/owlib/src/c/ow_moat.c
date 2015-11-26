@@ -482,12 +482,12 @@ static ZERO_OR_ERROR FS_r_alarm_status(struct one_wire_query *owq)
 	size_t blen = sizeof(b);
 	unsigned int i;
 
-	RETURN_BAD_IF_BAD( OW_r_std(b, &len, M_ALERT, M_STATUS, pn) );
+	RETURN_BAD_IF_BAD( OW_r_std(b, &blen, M_ALERT, M_STATUS, pn) );
 
 	for (i=0;i<blen*8;i++) {
 		if (b[i>>3] & (1<<(i&7))) {
 			if (i < STATUS_MAX)
-				len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%s,", s_names[i+1]);
+				len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%s,", s_names[i]);
 			else
 				len += snprintf((char *)buf+len,sizeof(buf)-len-1, "%d,", i+1);
 		}
