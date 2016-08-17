@@ -1,3 +1,9 @@
+owfs (3.1p3+git1-b7e91db-1) smurf; urgency=medium
+
+  * Upstream Merge
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Wed, 17 Aug 2016 06:28:30 +0200
+
 owfs (3.1p0+git1-ba7b185-4) smurf; urgency=medium
 
   * Fix dependencies
