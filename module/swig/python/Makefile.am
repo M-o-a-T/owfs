@@ -9,9 +9,7 @@ ow_wrap.c: ../ow.i ${LIBOW}
 	$(SWIG) -python -o $@ ../ow.i
 
 OW.py: ow_wrap.c setup.py $(LIBOW)
-	set -e ; set -x ; for p in $$(pyversions -r ../../../debian/control) ; do \
-		CFLAGS="" $$p setup.py build ; \
-	done
+	CFLAGS="@LIBUSB_CFLAGS@" $(PYTHON) setup.py build
 
 install-data-local:
 #	OpenSUSE is buggy and install libraries at /usr/local.

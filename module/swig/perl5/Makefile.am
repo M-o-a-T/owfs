@@ -17,7 +17,7 @@ if HAVE_DARWIN
 	cd OW ; $(PERL) Makefile.PL
 else
 if HAVE_DEBIAN
-	cd OW ; $(PERL) Makefile.PL INSTALLDIRS=vendor
+	( cd OW; $(PERL) Makefile.PL INSTALLDIRS=vendor )
 	cd OW ; for i in `grep -wl ^LD_RUN_PATH Makefile Makefile.[^P]*` ; do sed -i 's@^LD_RUN_PATH.*@LD_RUN_PATH=@' $$i ; done
 
 else
