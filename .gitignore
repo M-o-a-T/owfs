@@ -64,6 +64,7 @@ module/ownet/python/build/
 *.in
 .deps/
 .libs/
+*~
 
 !src/scripts/systemd/*.in
 src/scripts/systemd/*.service
