@@ -1,5 +1,4 @@
 /*
-$Id$
     OW -- One-Wire filesystem
 
     LICENSE (As of version 2.5p4 2-Oct-2006)
@@ -93,6 +92,7 @@ struct device {
 #define COUNT_OF_FILETYPES(filetype_array) ((int)(sizeof(filetype_array)/sizeof(struct filetype)))
 
 #define DeviceEntryExtended( code , chip , flags, gread, gwrite )  struct device d_##chip = {#code,#chip,flags,COUNT_OF_FILETYPES(chip),chip,gread,gwrite}
+#define DeviceEntryExtendedSecondary( code , chip , flags, gread, gwrite )  struct device d_##chip##_##code = {#code,#chip,flags,COUNT_OF_FILETYPES(chip),chip,gread,gwrite}
 
 #define DeviceEntry( code , chip, gread, gwrite )  DeviceEntryExtended( code, chip, 0, gread, gwrite )
 

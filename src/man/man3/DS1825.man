@@ -6,7 +6,6 @@
 '\" Based on Dallas Semiconductor, Inc's datasheets, and trial and error.
 '\"
 '\" Free for all use. No waranty. None. Use at your own risk.
-'\" $Id$
 '\"
 .TH DS1825 3  2006 "OWFS Manpage" "One-Wire File System"
 .SH NAME
@@ -34,6 +33,8 @@
 .B temphigh
 |
 .B templow
+|
+.B tempres
 |
 .so man3/standard_mini.3so
 ]]
@@ -138,12 +139,13 @@ Measured temperature of the thermocouple at 16bit resolution. Cold-junction temp
 The actual thermocouple type used is set by the selected chip type, and is not discoverable in software.
 .so man3/temperature_threshold.3so
 .PP
-The 
+The
 .B MAX31826
 does NOT have temperature thresholds and temperature alarm.
+.so man3/temperature_resolution.3so
 .SH MEMORY
 Only the
-.B MAX31826 
+.B MAX31826
 supports memory functions.
 .SS pages/page.0 .. pages/page.15 pages/page.ALL
 .I read/write, binary

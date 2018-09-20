@@ -1,6 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
 
+AC_PREREQ(2.57)
+
 AC_INIT
+AM_SILENT_RULES([yes])
 
 # Making releases:
 #   VERSION_PATCHLEVEL += 1;
@@ -12,8 +15,8 @@ AC_INIT
 # (In our case it's better to always keep AGE to 0, since nobody else will use our library)
 
 VERSION_MAJOR=3
-VERSION_MINOR=1
-VERSION_PATCHLEVEL=3
+VERSION_MINOR=2
+VERSION_PATCHLEVEL=2
 
 OWFS_INTERFACE_AGE=0
 OWFS_BINARY_AGE=0
@@ -50,6 +53,9 @@ AC_CONFIG_MACRO_DIR([src/scripts/m4])
 AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE(${PACKAGE}, ${VERSION})dnl
 
+PKG_PROG_PKG_CONFIG
+PKG_INSTALLDIR
+
 # Process config.h.in
 AH_TOP([
 #ifndef OWCONFIG_H
@@ -58,7 +64,6 @@ AH_TOP([
 AH_BOTTOM([#endif])
 AM_CONFIG_HEADER(src/include/config.h)
 
-AC_PREREQ(2.57)dnl
 AC_PREFIX_DEFAULT(/opt/owfs)dnl
 
 AC_PATH_PROG(ECHO,echo,,$PATH)dnl
@@ -66,7 +71,11 @@ AC_PATH_PROG(TEST,test,,$PATH)dnl
 AC_PATH_PROG(RM,rm,,$PATH)dnl
 AC_PATH_PROG(RPM,rpm,,$PATH)dnl
 AC_PATH_PROG(RPMBUILD,rpmbuild,,$PATH)dnl
-AC_PATH_PROG([SWIG],[swig],,$PATH)dnl
+
+# swig support
+AC_ARG_VAR([SWIG], [path to SWIG utility])
+AC_PATH_PROGS([SWIG],[swig swig3.0 swig2.0])
+
 AC_PATH_PROG([SOELIM],[soelim])
 AM_CONDITIONAL([SOELIM], [test -n "${SOELIM}"])
 # This macro should appair before any other PKG_* macro
@@ -162,7 +171,7 @@ m4_include([src/scripts/m4/acx_pthread.m4])
 # Checks for header files.
 AC_HEADER_DIRENT
 AC_HEADER_STDC
-AC_CHECK_HEADERS([asm/types.h arpa/inet.h sys/ioctl.h sys/mkdev.h sys/socket.h sys/time.h sys/times.h sys/types.h sys/param.h sys/uio.h feature_tests.h fcntl.h netinet/in.h stdlib.h string.h strings.h sys/file.h syslog.h termios.h unistd.h limits.h stdint.h features.h getopt.h resolv.h semaphore.h])
+AC_CHECK_HEADERS([asm/types.h arpa/inet.h sys/ioctl.h sys/mkdev.h sys/socket.h sys/sysmacros.h sys/time.h sys/times.h sys/types.h sys/param.h sys/uio.h feature_tests.h fcntl.h netinet/in.h stdlib.h string.h strings.h sys/file.h syslog.h termios.h unistd.h limits.h stdint.h features.h getopt.h resolv.h semaphore.h])
 AC_CHECK_HEADERS([linux/limits.h linux/types.h netdb.h dlfcn.h])
 AC_CHECK_HEADERS(sys/event.h sys/inotify.h)
 
@@ -600,8 +609,9 @@ AM_CONDITIONAL(ENABLE_PERL, test "${ENABLE_PERL}" = "true")
 AC_MSG_CHECKING(if owphp is enabled)
 ENABLE_OWPHP="true"
 AC_ARG_ENABLE(owphp,
-[  --enable-owphp          Enable owphp module (default true)],
-[
+	[AS_HELP_STRING([--enable-owphp],
+		[Enable owphp module (default true)])],
+	[
 	AC_MSG_RESULT([$enableval])
 	if test "$enableval" = "no" ; then
 		ENABLE_OWPHP="false"
@@ -610,25 +620,25 @@ AC_ARG_ENABLE(owphp,
 		ENABLE_OWPHP="true"
 	fi
 	if test -z "$SWIG"  ; then
-		AC_MSG_WARN([Cannot find swig program. Look for it at http://www.swig.org or use CPAN])
 		AC_MSG_WARN([OWPHP is disabled because swig is not found])
 		ENABLE_OWPHP="false"
 	fi
-],
-[
+	],
+	[
 	if test -z "$SWIG" ; then
 		AC_MSG_RESULT([no (swig disabled)])
 		ENABLE_OWPHP="false"
 	else
 		AC_MSG_RESULT([yes (default)])
 	fi
-])
+	])
 
 PHP=""
+PHPVMAJOR=""
 if test "${ENABLE_OWPHP}" = "true" ; then
 	m4_include(module/swig/php/php.m4)
-	AC_MSG_RESULT(Looking for location of Php executable)
-	SC_PATH_PHP 		
+	AC_MSG_NOTICE([Looking for location of php executable])
+	SC_PATH_PHP
 	AC_SUBST(PHPCONFIG)
 	AC_SUBST(PHPINC)
 	AC_SUBST(PHPEXT)
@@ -640,7 +650,6 @@ if test "${ENABLE_OWPHP}" = "true" ; then
 	else
 		if test -z "${PHPCONFIG}" ; then
 			AC_MSG_WARN([Cannot find php-config binary. Install php-devel or php5-dev package])
-			AC_MSG_WARN([include and library paths will be guessed])
 		fi
 		if test -z "${PHPINC}" ; then
 			AC_MSG_WARN([Cannot find php include-file. Install php-devel or php5-dev package])
@@ -657,6 +666,7 @@ if test "${ENABLE_OWPHP}" = "true" ; then
 fi
 AC_SUBST(PHP)
 AC_SUBST(ENABLE_OWPHP)
+AM_CONDITIONAL(PHP7, test "${PHPVMAJOR}" = "7")
 AM_CONDITIONAL(ENABLE_OWPHP, test "${ENABLE_OWPHP}" = "true")
 if test -z "$PHP" ; then
 	ENABLE_PHP="false"
@@ -871,9 +881,9 @@ case "${host_cpu}-${host_os}" in
 		# have to add -D_ISOC99_SOURCE=1 to support lrint() in bits/mathcalls.h
                 # have to add -D_POSIX_C_SOURCE=200112L for sem_timedwait
                 # have to add -D_POSIX_C_SOURCE=199309L for clock_gettime()
-		CFLAGS="$CFLAGS -D_BSD_SOURCE=1 -D_ISOC99_SOURCE=1 -D_POSIX_C_SOURCE=200112L"
-		EXTRACFLAGS="$EXTRACFLAGS -D_BSD_SOURCE=1 -D_ISOC99_SOURCE=1 -D_POSIX_C_SOURCE=200112L"
-		AC_MSG_RESULT([-D_BSD_SOURCE=1 -D_ISOC99_SOURCE=1 -D_POSIX_C_SOURCE=200112L])
+		CFLAGS="$CFLAGS -D_BSD_SOURCE=1 -D_ISOC99_SOURCE=1 -D_POSIX_C_SOURCE=200112L -D_DEFAULT_SOURCE"
+		EXTRACFLAGS="$EXTRACFLAGS -D_BSD_SOURCE=1 -D_ISOC99_SOURCE=1 -D_POSIX_C_SOURCE=200112L -D_DEFAULT_SOURCE"
+		AC_MSG_RESULT([-D_BSD_SOURCE=1 -D_ISOC99_SOURCE=1 -D_POSIX_C_SOURCE=200112L -D_DEFAULT_SOURCE])
 	;;
 esac
 
@@ -1468,10 +1478,12 @@ AC_COMPILE_IFELSE(
 [
 	if test "${HAVE_CYGWIN}" = "true" ; then
 		AC_MSG_RESULT([no, Cygwins ipv6 is incomplete])
+		AC_DEFINE(__HAS_IPV6__, 0, [No ipv6 support available.])
 		have_v6=no
 	else
 		have_v6=yes
 		AC_DEFINE(IPV6, 1, [Define if ipv6 support is present and available.])
+		AC_DEFINE(__HAS_IPV6__, 1, [Define if ipv6 support is present and available.])
 		AC_MSG_RESULT(yes)
 		AC_MSG_CHECKING([for struct in6addr_any])
 		AC_COMPILE_IFELSE(
@@ -1489,8 +1501,11 @@ AC_COMPILE_IFELSE(
 		)
 	fi
 ],
-[AC_MSG_RESULT(no)
-have_v6="no"])
+[
+	AC_MSG_RESULT(no)
+	have_v6=no
+	AC_DEFINE(__HAS_IPV6__, 0, [No ipv6 support available.])
+])
 
 
 AC_CACHE_CHECK(if sem_timedwait exists,ac_cv_sem_timedwait, [
@@ -1734,6 +1749,7 @@ AC_CONFIG_FILES([
 	module/owcapi/src/c/Makefile
 	module/owcapi/src/example/Makefile
 	module/owcapi/src/example++/Makefile
+	module/owcapi/owcapi.pc
 
 	module/owtap/Makefile
 

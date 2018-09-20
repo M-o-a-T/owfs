@@ -1,5 +1,4 @@
 /*
-$Id$
     OWFS -- One-Wire filesystem
     OWHTTPD -- One-Wire Web Server
     Written 2003 Paul H Alfille
@@ -145,6 +144,7 @@ void DeviceSort(void)
 	Device2Tree( & d_DS2436,         ePN_real);
 	Device2Tree( & d_DS2437,         ePN_real);
 	Device2Tree( & d_DS2438,         ePN_real);
+	Device2Tree( & d_DS2438_A6,      ePN_real);
 	Device2Tree( & d_DS2450,         ePN_real);
 	Device2Tree( & d_DS2502,         ePN_real);
 	Device2Tree( & d_DS2505,         ePN_real);
@@ -170,6 +170,7 @@ void DeviceSort(void)
 	Device2Tree( & d_mRS001,         ePN_real);
 	Device2Tree( & d_mTS017,         ePN_real);
 	Device2Tree( & d_mDI001,         ePN_real);
+	Device2Tree( & d_IBLSS,          ePN_real);
 	Device2Tree( & d_simultaneous,   ePN_real);
 	
 	Device2Tree( & d_stats_cache,          ePN_statistics);

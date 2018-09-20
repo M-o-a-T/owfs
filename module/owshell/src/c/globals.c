@@ -1,5 +1,4 @@
 /*
-$Id$
     OWFS -- One-Wire filesystem
     OWHTTPD -- One-Wire Web Server
     Written 2003 Paul H Alfille
@@ -44,7 +43,7 @@ static void Cleanup(void)
 #endif
 }
 
-void Exit(int exit_code)
+__attribute__((noreturn)) void Exit(int exit_code)
 {
 	Cleanup();
 	exit(exit_code);

@@ -1,6 +1,4 @@
 /*
-$Id$
-
     Written 2006 Paul H Alfille
 
     MIT license
@@ -317,6 +315,6 @@ struct connection_in {
 extern struct connection_in s_owserver_connection;
 extern struct connection_in *owserver_connection;
 
-void Exit(int exit_code);
+__attribute__((noreturn)) void Exit(int exit_code);
 
 #endif							/* OWSHELL_H */

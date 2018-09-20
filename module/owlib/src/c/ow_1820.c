@@ -56,6 +56,8 @@ READ_FUNCTION(FS_slowtemp);
 READ_FUNCTION(FS_power);
 READ_FUNCTION(FS_r_templimit);
 WRITE_FUNCTION(FS_w_templimit);
+READ_FUNCTION(FS_r_tempres);
+WRITE_FUNCTION(FS_w_tempres);
 READ_FUNCTION(FS_r_die);
 READ_FUNCTION(FS_r_trim);
 WRITE_FUNCTION(FS_w_trim);
@@ -79,11 +81,11 @@ static enum e_visibility VISIBLE_DS1825( const struct parsedname * pn ) ;
 static enum e_visibility VISIBLE_MAX31826( const struct parsedname * pn ) ;
 static enum e_visibility VISIBLE_MAX31850( const struct parsedname * pn ) ;
 
-enum threeB { 
-    Unknown_3B, 
-    DS1825_3B, 
-    MAX31826_3B, 
-    MAX31850_3B, 
+enum threeB {
+    Unknown_3B,
+    DS1825_3B,
+    MAX31826_3B,
+    MAX31850_3B,
     } ;
 
 #define SCRATCHPAD_LENGTH 9
@@ -130,6 +132,7 @@ static struct filetype DS18B20[] = {
 	{"latesttemp", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_volatile, FS_22latesttemp, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"templow", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_stable, FS_r_templimit, FS_w_templimit, VISIBLE, {.i=1}, },
 	{"temphigh", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_stable, FS_r_templimit, FS_w_templimit, VISIBLE, {.i=0}, },
+	{"tempres", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_unsigned, fc_stable, FS_r_tempres, FS_w_tempres, VISIBLE, NO_FILETYPE_DATA, },
 	{"power", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_volatile, FS_power, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"scratchpad", SCRATCHPAD_LENGTH, NON_AGGREGATE, ft_binary, fc_volatile, FS_r_scratchpad, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 
@@ -153,6 +156,7 @@ static struct filetype DS1822[] = {
 	{"latesttemp", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_volatile, FS_22latesttemp, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"templow", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_stable, FS_r_templimit, FS_w_templimit, VISIBLE, {.i=1}, },
 	{"temphigh", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_stable, FS_r_templimit, FS_w_templimit, VISIBLE, {.i=0}, },
+	{"tempres", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_unsigned, fc_stable, FS_r_tempres, FS_w_tempres, VISIBLE, NO_FILETYPE_DATA, },
 	{"power", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_volatile, FS_power, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"scratchpad", SCRATCHPAD_LENGTH, NON_AGGREGATE, ft_binary, fc_volatile, FS_r_scratchpad, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 
@@ -178,6 +182,7 @@ static struct filetype DS1825[] = {
 	{"latesttemp", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_volatile, FS_22latesttemp, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"templow", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_stable, FS_r_templimit, FS_w_templimit, VISIBLE_DS1825, {.i=1}, },
 	{"temphigh", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_stable, FS_r_templimit, FS_w_templimit, VISIBLE_DS1825, {.i=0}, },
+	{"tempres", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_unsigned, fc_stable, FS_r_tempres, FS_w_tempres, VISIBLE, NO_FILETYPE_DATA, },
 	{"thermocouple", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_link, FS_thermocouple, NO_WRITE_FUNCTION, VISIBLE_MAX31850, {.i=12}, },
 	{"flagfield", PROPERTY_LENGTH_UNSIGNED, NON_AGGREGATE, ft_unsigned, fc_link, FS_r_flagfield, NO_WRITE_FUNCTION, INVISIBLE, NO_FILETYPE_DATA, },
 	{"fault" , PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_link, FS_r_bitfield, NO_WRITE_FUNCTION, VISIBLE_MAX31850, {.v= &max31850_fault,}, },
@@ -206,6 +211,7 @@ static struct filetype DS28EA00[] = {
 	{"latesttemp", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_volatile, FS_22latesttemp, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"templow", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_stable, FS_r_templimit, FS_w_templimit, VISIBLE_DS1825, {.i=1}, },
 	{"temphigh", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_temperature, fc_stable, FS_r_templimit, FS_w_templimit, VISIBLE_DS1825, {.i=0}, },
+	{"tempres", PROPERTY_LENGTH_TEMP, NON_AGGREGATE, ft_unsigned, fc_stable, FS_r_tempres, FS_w_tempres, VISIBLE, NO_FILETYPE_DATA, },
 	{"power", PROPERTY_LENGTH_YESNO, NON_AGGREGATE, ft_yesno, fc_volatile, FS_power, NO_WRITE_FUNCTION, VISIBLE, NO_FILETYPE_DATA, },
 	{"piostate", PROPERTY_LENGTH_UNSIGNED, NON_AGGREGATE, ft_unsigned, fc_volatile, FS_r_piostate, NO_WRITE_FUNCTION, INVISIBLE, NO_FILETYPE_DATA, },
 	{"PIO", PROPERTY_LENGTH_BITFIELD, &A28EA00, ft_bitfield, fc_link, FS_r_pio, FS_w_pio, VISIBLE, NO_FILETYPE_DATA, },
@@ -304,6 +310,8 @@ static GOOD_OR_BAD OW_22temp(_FLOAT * temp, enum temperature_problem_flag accept
 static GOOD_OR_BAD OW_power(BYTE * data, const struct parsedname *pn);
 static GOOD_OR_BAD OW_r_templimit(_FLOAT * T, const int Tindex, const struct parsedname *pn);
 static GOOD_OR_BAD OW_w_templimit(const _FLOAT T, const int Tindex, const struct parsedname *pn);
+static GOOD_OR_BAD OW_r_tempres(UINT * resolution, const struct parsedname *pn);
+static GOOD_OR_BAD OW_w_tempres(UINT resolution, const struct parsedname *pn);
 static GOOD_OR_BAD OW_r_scratchpad(BYTE * data, const struct parsedname *pn);
 static GOOD_OR_BAD OW_w_scratchpad(const BYTE * data, const struct parsedname *pn);
 static GOOD_OR_BAD OW_w_store_scratchpad(const BYTE * data, const struct parsedname *pn);
@@ -327,7 +335,7 @@ static GOOD_OR_BAD OW_w_page( BYTE * data, size_t size, off_t offset, struct par
 static enum threeB VISIBLE_3B( const struct parsedname * pn )
 {
 	enum threeB e3B = Unknown_3B ;
-	
+
 	LEVEL_DEBUG("Checking visibility of %s",SAFESTRING(pn->path)) ;
 	if ( BAD( GetVisibilityCache( (int *) &e3B, pn ) ) ) {
 		struct one_wire_query * owq = OWQ_create_from_path(pn->path) ; // for read
@@ -352,7 +360,7 @@ static enum threeB VISIBLE_3B( const struct parsedname * pn )
 
 #define VISIBLE_FN( id )  static enum e_visibility VISIBLE_##id(const struct parsedname * pn ) {\
 	return ( VISIBLE_3B(pn)==id##_3B ) ? visible_now : visible_not_now ; }
-	
+
 VISIBLE_FN( DS1825 ) ;
 VISIBLE_FN( MAX31826 ) ;
 VISIBLE_FN( MAX31850 ) ;
@@ -360,7 +368,7 @@ VISIBLE_FN( MAX31850 ) ;
 static ZERO_OR_ERROR FS_10temp(struct one_wire_query *owq)
 {
 	struct parsedname * pn = PN(owq) ;
-	
+
 	// triple try temperatures
 	// first pass include simultaneous
 	if ( GOOD( OW_10temp(&OWQ_F(owq), deny_85C, OWQ_SIMUL_TEST(owq), pn)) ) {
@@ -376,7 +384,7 @@ static ZERO_OR_ERROR FS_10temp(struct one_wire_query *owq)
 
 static ZERO_OR_ERROR FS_10latesttemp(struct one_wire_query *owq)
 {
-	return GB_to_Z_OR_E(OW_10latesttemp(&OWQ_F(owq), 1, PN(owq)));
+	return GB_to_Z_OR_E(OW_10latesttemp(&OWQ_F(owq), allow_85C, PN(owq)));
 }
 
 static ZERO_OR_ERROR FS_10temp_link(struct one_wire_query *owq)
@@ -404,7 +412,7 @@ static ZERO_OR_ERROR FS_22temp(struct one_wire_query *owq)
 
 static ZERO_OR_ERROR FS_22latesttemp(struct one_wire_query *owq)
 {
-	return GB_to_Z_OR_E(OW_22latesttemp(&OWQ_F(owq), 1, PN(owq)));
+	return GB_to_Z_OR_E(OW_22latesttemp(&OWQ_F(owq), allow_85C, PN(owq)));
 }
 
 // use sibling function for fasttemp to keep cache value consistent
@@ -485,12 +493,18 @@ static ZERO_OR_ERROR FS_r_templimit(struct one_wire_query *owq)
 	return GB_to_Z_OR_E( OW_r_templimit(&OWQ_F(owq), PN(owq)->selected_filetype->data.i, PN(owq)) );
 }
 
+static ZERO_OR_ERROR FS_r_tempres(struct one_wire_query *owq)
+{
+	return GB_to_Z_OR_E( OW_r_tempres(&OWQ_U(owq), PN(owq)) );
+}
+
+
 /* DS1825 hardware programmable address */
 static ZERO_OR_ERROR FS_r_ad(struct one_wire_query *owq)
 {
 	size_t scr_leng = SCRATCHPAD_LENGTH ;
 	BYTE data[scr_leng];
-	
+
 	RETURN_ERROR_IF_BAD(FS_r_sibling_binary( data, &scr_leng, "scratchpad", owq )) ;
 	OWQ_U(owq) = data[4] & 0x0F;
 	return 0;
@@ -501,7 +515,7 @@ static ZERO_OR_ERROR FS_r_flagfield(struct one_wire_query *owq)
 {
 	size_t scr_leng = SCRATCHPAD_LENGTH ;
 	BYTE data[scr_leng];
-	
+
 	RETURN_ERROR_IF_BAD(FS_r_sibling_binary( data, &scr_leng, "scratchpad", owq )) ;
 	OWQ_U(owq) = UT_uint32( data ) ;
 	return 0;
@@ -529,6 +543,11 @@ static ZERO_OR_ERROR FS_w_templimit(struct one_wire_query *owq)
 	return GB_to_Z_OR_E(OW_w_templimit(OWQ_F(owq), PN(owq)->selected_filetype->data.i, PN(owq)));
 }
 
+static ZERO_OR_ERROR FS_w_tempres(struct one_wire_query *owq)
+{
+	return GB_to_Z_OR_E(OW_w_tempres(OWQ_U(owq), PN(owq)));
+}
+
 static ZERO_OR_ERROR FS_r_die(struct one_wire_query *owq)
 {
 	char *d;
@@ -554,7 +573,7 @@ static ZERO_OR_ERROR FS_r_die(struct one_wire_query *owq)
 static ZERO_OR_ERROR FS_r_scratchpad(struct one_wire_query *owq)
 {
 	BYTE s[SCRATCHPAD_LENGTH] ;
-	
+
 	if ( BAD(OW_r_scratchpad( s, PN(owq) ) ) ) {
 		return -EINVAL ;
 	}
@@ -674,7 +693,7 @@ static GOOD_OR_BAD OW_power(BYTE * data, const struct parsedname *pn)
 			TRXN_READ1(data),
 			TRXN_END,
 		};
-	
+
 		RETURN_BAD_IF_BAD(BUS_transaction(tpower, pn)) ;
 		//LEVEL_DEBUG("TEST cannot read power");
 		Cache_Add_SlaveSpecific(data, sizeof(BYTE), SlaveSpecificTag(POW), pn);
@@ -784,7 +803,7 @@ static GOOD_OR_BAD OW_test_resolution( int * resolution_changed, struct tempreso
 		Cache_Add_SlaveSpecific(&(Resolution->bits), sizeof(stored_resolution), SlaveSpecificTag(RES), pn);
 	}
 
-	return gbGOOD;	
+	return gbGOOD;
 }
 
 /* returns when temperature is ready for reading
@@ -828,7 +847,7 @@ static GOOD_OR_BAD OW_temperature_ready( enum temperature_problem_flag accept_85
 		// must be desperate
 		LEVEL_DEBUG("Unpowered temperature conversion -- %d msec", longdelay);
 		// If not powered, no Simultaneous for this chip
-		RETURN_BAD_IF_BAD(BUS_transaction(tunpowered_long, pn)) ;	
+		RETURN_BAD_IF_BAD(BUS_transaction(tunpowered_long, pn)) ;
 	} else if (!pow) {					// unpowered, deliver power, no communication allowed
 		LEVEL_DEBUG("Unpowered temperature conversion -- %d msec", delay);
 		// If not powered, no Simultaneous for this chip
@@ -895,13 +914,30 @@ static GOOD_OR_BAD OW_22latesttemp(_FLOAT * temp, enum temperature_problem_flag 
 {
 	BYTE data[SCRATCHPAD_LENGTH];
 	struct tempresolution *Resolution ;
-	
-	RETURN_BAD_IF_BAD( OW_set_resolution( &Resolution, pn ) ) ; 
 
 	RETURN_BAD_IF_BAD( OW_r_scratchpad(data, pn) ) ;
 
-	temp[0] = OW_masked_temperature( data, Resolution ) ;
-
+	switch (data[4] & 0x60) {
+		case 0x00:
+			Resolution = &Resolution9 ;
+			break ;
+		case 0x20:
+			Resolution = &Resolution10 ;
+			break ;
+		case 0x40:
+			Resolution = &Resolution11 ;
+			break ;
+		case 0x60:
+		default:
+			Resolution = &Resolution12 ;
+			break ;
+	}
+        if ((pn->sn[0] == 0x3B) && (data[4] & 0x80)) {
+            /* MAX31850 shows internal temperature at data[2] as "temperatureXXX"! */
+            temp[0] = ((_FLOAT) ((int16_t) ((data[3] << 8) | (data[2] & 0xf0)))) / 256.0;
+        } else {
+            temp[0] = OW_masked_temperature( data, Resolution ) ;
+        }
 	if ( accept_85C==allow_85C || data[0] != 0x50 || data[1] != 0x05 ) {
 		return gbGOOD;
 	}
@@ -911,8 +947,8 @@ static GOOD_OR_BAD OW_22latesttemp(_FLOAT * temp, enum temperature_problem_flag 
 static GOOD_OR_BAD OW_22temp(_FLOAT * temp, enum temperature_problem_flag accept_85C, int simul_good, const struct parsedname *pn)
 {
 	struct tempresolution *Resolution ;
-	
-	RETURN_BAD_IF_BAD( OW_set_resolution( &Resolution, pn ) ) ; 
+
+	RETURN_BAD_IF_BAD( OW_set_resolution( &Resolution, pn ) ) ;
 
 	RETURN_BAD_IF_BAD( OW_temperature_ready( accept_85C, simul_good, Resolution, pn ) ) ;
 
@@ -931,13 +967,12 @@ static GOOD_OR_BAD OW_thermocouple(_FLOAT * temp, enum temperature_problem_flag 
 
 	RETURN_BAD_IF_BAD(OW_r_scratchpad(data, pn)) ;
 
-	temp[0] = OW_masked_temperature( &data[2], Resolution ) ;
-
 	if ( (data[0] & 0x01)  || (data[2] & 0x07)) {
 		// Fault flag
 		LEVEL_DEBUG("Error flag on thermocouple read of %s",pn->path) ;
 		return gbBAD ;
 	}
+	temp[0] = OW_masked_temperature( &data[0], Resolution ) ;
 
 	return gbGOOD ;
 }
@@ -972,6 +1007,70 @@ static GOOD_OR_BAD OW_w_templimit(const _FLOAT T, const int Tindex, const struct
 	data[2 + Tindex] = (int8_t) T;
 	return OW_w_store_scratchpad(&data[2], pn);
 }
+
+/* Get default resolution */
+static GOOD_OR_BAD OW_r_tempres(UINT * resolution, const struct parsedname *pn)
+{
+	BYTE data[SCRATCHPAD_LENGTH];
+	BYTE recall[] = { _1W_RECALL_EEPROM, };
+	struct transaction_log trecall[] = {
+		TRXN_START,
+		TRXN_WRITE1(recall),
+		TRXN_DELAY(10),
+		TRXN_END,
+	};
+
+	RETURN_BAD_IF_BAD(BUS_transaction(trecall, pn)) ;
+
+	RETURN_BAD_IF_BAD(OW_r_scratchpad(data, pn)) ;
+
+	switch (data[4] & 0x60) {
+		case 0x00:
+			resolution[0] = 9;
+			break ;
+		case 0x20:
+			resolution[0] = 10;
+			break ;
+		case 0x40:
+			resolution[0] = 11;
+			break ;
+		case 0x60:
+			resolution[0] = 12;
+			break ;
+	}
+
+	return gbGOOD;
+}
+
+/* Set default resolution */
+static GOOD_OR_BAD OW_w_tempres(UINT resolution, const struct parsedname *pn)
+{
+	BYTE data[SCRATCHPAD_LENGTH];
+
+	if (OW_r_scratchpad(data, pn)) {
+		return gbBAD;
+	}
+
+	data[4] &= 0x9f;
+	switch (resolution) {
+		case 9:
+			break;
+		case 10:
+			data[4] |= 0x20;
+			break;
+		case 11:
+			data[4] |= 0x40;
+			break;
+		case 12:
+			data[4] |= 0x60;
+			break;
+		default:
+			return gbBAD;
+	}
+
+	return OW_w_store_scratchpad(&data[2], pn);
+}
+
 
 /* read 9 bytes, includes CRC8 which is checked */
 static GOOD_OR_BAD OW_r_scratchpad(BYTE * data, const struct parsedname *pn)
@@ -1046,7 +1145,7 @@ static GOOD_OR_BAD OW_r_trim(BYTE * trim, const struct parsedname *pn)
 		TRXN_READ1(&trim[1]),
 		TRXN_END,
 	};
-	
+
 	RETURN_BAD_IF_BAD(BUS_transaction(t0, pn)) ;
 	return BUS_transaction(t1, pn);
 }
@@ -1186,7 +1285,7 @@ static GOOD_OR_BAD OW_r_mem(BYTE * data, size_t size, off_t offset, struct parse
 		TRXN_READ(data,size),
 		TRXN_END,
 	};
-	
+
 	return BUS_transaction(t, pn) ;
 }
 
@@ -1199,11 +1298,11 @@ static GOOD_OR_BAD OW_w_mem( BYTE * data, size_t size, off_t offset, struct pars
 	size_t left_to_write = size ;
 	off_t current_off = offset ;
 	off_t page_boundary_next = offset + pagesize - (offset % pagesize ) ;
-	
+
 	// loop through pages
 	while ( left_to_write > 0 ) {
 		off_t this_write = left_to_write ;
-		
+
 		// trim length of write to fit in page
 		if ( current_off + this_write > page_boundary_next ) {
 			this_write = page_boundary_next - current_off ;
@@ -1211,14 +1310,14 @@ static GOOD_OR_BAD OW_w_mem( BYTE * data, size_t size, off_t offset, struct pars
 
 		// write this page
 		RETURN_BAD_IF_BAD( OW_w_page( dataloc, this_write, current_off, pn ) ) ;
-		
+
 		// update pointers and counters
 		dataloc += this_write ;
 		left_to_write -= this_write ;
 		current_off += this_write ;
 		page_boundary_next += pagesize ;
 	}
-	
+
 	return gbGOOD ;
 }
 
@@ -1276,9 +1375,9 @@ static GOOD_OR_BAD OW_w_page( BYTE * data, size_t size, off_t offset, struct par
 	p_read[0] = _1W_READ_SCRATCHPAD2 ;
 	p_read[1] = page_offset ;
 	RETURN_BAD_IF_BAD( BUS_transaction( t_read, pn ) ) ;
-	
+
 	// copy scratchpad 2 to eeprom
 	p_copy[0] = _1W_COPY_SCRATCHPAD2 ;
 	p_copy[1] = _1W_COPY_SCRATCHPAD2_DO ;
 	return BUS_transaction( t_copy, pn ) ;
-}	 
+}

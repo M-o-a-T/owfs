@@ -210,7 +210,7 @@ static GOOD_OR_BAD LinkVersion_unknownstring( const char * reported_string, stru
 	const char * version_pointer;
 	
 	// Apparently strcasestr isn't available by default, will hard code:
-	for ( version_pointer = reported_string ; version_pointer != '\0' ; ++version_pointer )  {
+	for ( version_pointer = reported_string ; (*version_pointer) != '\0' ; ++version_pointer )  {
 		switch ( *version_pointer ) {
 			case 'l':
 			case 'L':
@@ -272,7 +272,9 @@ GOOD_OR_BAD LINK_detect(struct port_in *pin)
 			 */
 			RETURN_BAD_IF_BAD(LINK_detect_serial(in));
 
-			if(pin->type == ct_ftdi) {
+			if(pin->type == ct_serial) {
+				return gbGOOD;
+			} else if(pin->type == ct_ftdi) {
 				// ct_serial handling of BREAK, which is required to re-set to 9600bps, is not
 				// reliable. Only enable for ftdi devices with proper BREAK support.
 				LEVEL_DEBUG("Reconfiguring found LinkUSB to 19200bps");
@@ -749,6 +751,7 @@ static GOOD_OR_BAD LINK_directory(struct device_search *ds, struct connection_in
 		case 'E':
 			LEVEL_DEBUG("LINK returned E: No devices in alarm");
 			// pass through
+			__attribute__ ((fallthrough));
 		case 'N':
 			// remove extra 2 bytes
 			LEVEL_DEBUG("LINK returned E or N: Empty bus");

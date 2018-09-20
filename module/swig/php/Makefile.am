@@ -24,6 +24,7 @@ AM_CFLAGS = -fexceptions \
 	${EXTRACFLAGS} \
 	${LIBUSB_CFLAGS} \
 	${PTHREAD_CFLAGS} \
+	${LIBAVAHI_CFLAGS} \
 	@PHPINC@
 
 LDADD = -L../../owlib/src/c -low
@@ -32,7 +33,11 @@ nodist_libowphp_la_SOURCES = ow_wrap.c php_OW.h
 
 ow_wrap.c: ../ow.i
 if ENABLE_OWPHP
+if PHP7
+	$(SWIG) -php7 -o $@ ../ow.i
+else
 	$(SWIG) -php -o $@ ../ow.i
+endif
 endif
 
 #install-data-local:
