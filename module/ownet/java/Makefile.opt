@@ -22,7 +22,7 @@ INSTALL_DIR=.install
 JARNAME=ownet.jar
 PACKAGEFOLDER=org/owfs/ownet
 PACKAGENAME=org.owfs.ownet
-JARADDITIONALFILES=README COPYING
+JARADDITIONALFILES=COPYING
 INSTALL_FILES=$(BUILD_DIR)/ownet.jar $(DOCS_DIR)/javadoc
 
 # ---- source locations ----

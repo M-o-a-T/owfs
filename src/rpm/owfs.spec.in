@@ -466,7 +466,7 @@ fi
 
 %files libs
 %defattr(-,root,root)
-%doc README NEWS INSTALL ChangeLog AUTHORS COPYING
+%doc NEWS ChangeLog AUTHORS COPYING
 %{prefix}/include/owfs/owfs_config.h
 %{_libdir}/libow-*.so*
 %{_libdir}/libow.so
