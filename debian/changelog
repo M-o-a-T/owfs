@@ -1,9 +1,9 @@
-owfs (3.2p3+git1-ba66022-3) unstable; urgency=medium
+owfs (3.2p3+git1-ba66022-4) unstable; urgency=medium
 
-  * README nonsense
+  * lots of README nonsense
   * .gitignore
 
- -- Matthias Urlichs <matthias@urlichs.de>  Thu, 20 Sep 2018 20:46:13 +0200
+ -- Matthias Urlichs <matthias@urlichs.de>  Thu, 20 Sep 2018 20:48:19 +0200
 
 owfs (3.2p3+git1-ba66022-1) unstable; urgency=medium
 

@@ -73,6 +73,7 @@ src/scripts/systemd/*.service
 src/scripts/install/
 !src/scripts/install/mkinstalldir
 
+INSTALL
 aclocal.m4
 autom4te.cache/
 module/owfs/src/c/owfs
