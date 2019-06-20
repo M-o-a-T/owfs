@@ -1,6 +1,7 @@
 /*.debhelper
 /*.substvars
 /*.log
+/*-stamp
 /files
 /libow-*/
 /libow-dev/

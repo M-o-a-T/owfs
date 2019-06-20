@@ -1,3 +1,9 @@
+owfs (3.2p3+release-1) unstable; urgency=medium
+
+  * Merge release
+
+ -- Matthias Urlichs <matthias@urlichs.de>  Thu, 20 Jun 2019 17:39:58 +0200
+
 owfs (3.2p3+git1-ba66022-4) unstable; urgency=medium
 
   * lots of README nonsense
