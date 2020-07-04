@@ -2,7 +2,7 @@ Source: owfs
 Priority: extra
 Maintainer: Vincent Danjean <vdanjean@debian.org>
 Build-Depends: debhelper (>= 9~), quilt, autotools-dev,
- libfuse-dev, swig, python-all-dev (>= 2.6.6-3~),
+ libfuse-dev, swig, python3-all-dev,
  libusb-1.0-0-dev, libsystemd-dev,
  ed, systemd [linux-any], groff-base, dh-systemd,
  libtool, autoconf, automake, pkg-config,
@@ -194,34 +194,6 @@ Description: FTP daemon providing access to 1-Wire networks
  .
  FTP daemon providing access to 1-Wire networks.
 
-Package: python-ow
-Architecture: any
-Section: python
-Depends: ${shlibs:Depends}, ${python:Depends}, ${misc:Depends}
-Provides: ${python:Provides}
-XB-Python-Version: ${python:Versions}
-Description: Dallas 1-wire support: Python bindings
- The 1-Wire bus is a cheap low-speed bus for devices like weather
- sensors, access control, etc. It can be attached to your system via
- serial, USB, I2C, and other interfaces.
- .
- Python bindings for the OWFS 1-Wire support library have been produced
- with SWIG and allow access to libow functions from Python code.
-
-Package: python-ownet
-Architecture: all
-Section: python
-Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
-Provides: ${python:Provides}
-XB-Python-Version: ${python:Versions}
-Description: Python module for accessing 1-wire networks
- The 1-Wire bus is a cheap low-speed bus for devices like weather
- sensors, access control, etc. It can be attached to your system via
- serial, USB, I2C, and other interfaces.
- .
- OWnet is a standalone Python module for accessing 1-wire sensors
- through an owserver.
-
 Package: owfs-doc
 Architecture: all
 Section: doc
@@ -244,7 +216,6 @@ Depends: libow-3.0-0 (= ${binary:Version}) |
  owserver (= ${binary:Version}) |
  owhttpd (= ${binary:Version}) |
  owftpd (= ${binary:Version}) |
- python-ow (= ${binary:Version}) |
  ${misc:Depends}
 Description: Debugging symbols for the OWFS packages
  The 1-Wire bus is a cheap low-speed bus for devices like weather
